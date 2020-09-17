@@ -22,8 +22,14 @@
       "npm run lint"
     ]
   },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run deploy"
+    }
+  },
   "scripts": {
     "update-env": "vercel env pull",
+    "deploy": "vercel",
     "format": "prettier --write **/*.{ts,json}",
     "lint": "eslint --fix --ext ts ."
   },

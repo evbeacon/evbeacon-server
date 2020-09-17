@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 export default async (): Promise<void> => {
   if (mongoose.connections[0].readyState) return;
@@ -10,7 +10,7 @@ export default async (): Promise<void> => {
       useFindAndModify: false,
       useCreateIndex: true,
     })
-    .catch((e) => {
+    .catch((e: Error) => {
       console.error("Error connecting to database.");
 
       throw e;
