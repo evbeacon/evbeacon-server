@@ -1,0 +1,45 @@
+{
+  "name": "evbeacon-server",
+  "version": "0.1.0",
+  "description": "Backend server for EVBeacon",
+  "author": "Josh McFarlin <jmcfarlin6@gatech.edu> (https://mcfarl.in/)",
+  "license": "GPL-3.0",
+  "keywords": [
+    "evbeacon",
+    "ev"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/evbeacon/evbeacon-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/evbeacon/evbeacon-server/issues"
+  },
+  "homepage": "https://github.com/evbeacon/evbeacon-server#readme",
+  "lint-staged": {
+    "*.@(ts|tsx)": [
+      "npm run format",
+      "npm run lint"
+    ]
+  },
+  "scripts": {
+    "format": "prettier --write **/*.{ts,json}",
+    "lint": "eslint --fix --ext ts ."
+  },
+  "devDependencies": {
+    "@tsconfig/node12": "^1.0.7",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "@vercel/node": "^1.8.2",
+    "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-typescript": "^3.0.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0",
+    "prettier": "^2.1.2",
+    "typescript": "^4.0.2"
+  },
+  "engines": {
+    "node": "12.x"
+  }
+}
