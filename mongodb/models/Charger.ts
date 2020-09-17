@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const pointSchema = require("../schemas/Point");
-const addressSchema = require("../schemas/Address");
+import mongoose from "mongoose";
+import locationSchema from "../schemas/Location";
+import addressSchema from "../schemas/Address";
 
 const ChargerSchema = new mongoose.Schema(
   {
@@ -10,7 +10,7 @@ const ChargerSchema = new mongoose.Schema(
       index: true,
     },
     location: {
-      type: pointSchema,
+      type: locationSchema,
       required: true,
       index: "2dsphere",
     },
@@ -18,27 +18,24 @@ const ChargerSchema = new mongoose.Schema(
       type: addressSchema,
       required: true,
     },
-    description: {
-      type: String,
-      trim: true,
-    },
     plugType: {
       type: String,
       required: true,
       index: true,
       trim: true,
     },
+    description: {
+      type: String,
+      trim: true,
+    },
     offHoursStartUTC: {
       type: Date,
-      default: null,
     },
     offHoursEndUTC: {
       type: Date,
-      default: null,
     },
     disabledUntilUTC: {
       type: Date,
-      default: null,
     },
     banned: {
       type: Boolean,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const ReportSchema = new mongoose.Schema(
   {
@@ -31,6 +31,7 @@ const ReportSchema = new mongoose.Schema(
     },
     decided: {
       type: Boolean,
+      default: false,
       index: true,
     },
     decidedBy: {

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 export default async (): Promise<void> => {
   if (mongoose.connections[0].readyState) return;
