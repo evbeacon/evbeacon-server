@@ -6,7 +6,7 @@ export interface UserType extends MongooseDocument {
   role: "Admin" | "User";
   name: string;
   bio?: string;
-  finishedAddress: boolean;
+  finishedCharger: boolean;
   finishedVehicle: boolean;
   banned: boolean;
 }
@@ -16,7 +16,7 @@ export interface SafeUserType {
   role: UserType["role"];
   name: UserType["name"];
   bio?: UserType["bio"];
-  finishedAddress: UserType["finishedAddress"];
+  finishedCharger: UserType["finishedCharger"];
   finishedVehicle: UserType["finishedVehicle"];
   banned: UserType["banned"];
 }
@@ -43,7 +43,7 @@ export interface UpdateUserType {
   _id: UserType["_id"];
   name?: UserType["name"];
   bio?: UserType["bio"];
-  finishedAddress?: UserType["finishedAddress"];
+  finishedCharger?: UserType["finishedCharger"];
   finishedVehicle?: UserType["finishedVehicle"];
 }
 

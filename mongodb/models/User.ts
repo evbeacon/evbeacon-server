@@ -29,7 +29,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    finishedAddress: {
+    finishedCharger: {
       type: Boolean,
       default: false,
     },
