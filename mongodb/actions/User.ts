@@ -8,6 +8,7 @@ import {
   UserJWTType,
   NewUserType,
   LoginUserType,
+  UpdateUserType,
 } from "../../types/User";
 
 const generateJWT = (user: UserType): string =>
@@ -127,6 +128,34 @@ export const getUser = async ({
   }
 
   const { password, ...rest } = user;
+
+  return rest;
+};
+
+export const updateUser = async ({
+  _id,
+  ...updateFields
+}: UpdateUserType): Promise<SafeUserType> => {
+  if (_id == null) {
+    throw new Error("UserID must be provided!");
+  }
+
+  await initDB();
+
+  const newUser = (await User.findByIdAndUpdate(
+    _id,
+    { $set: updateFields },
+    {
+      new: true,
+      lean: true,
+    }
+  )) as UserType;
+
+  if (newUser == null) {
+    throw new Error("User does not exist!");
+  }
+
+  const { password, ...rest } = newUser;
 
   return rest;
 };

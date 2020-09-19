@@ -29,6 +29,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    finishedAddress: {
+      type: Boolean,
+      default: false,
+    },
+    finishedVehicle: {
+      type: Boolean,
+      default: false,
+    },
     banned: {
       type: Boolean,
       default: false,
