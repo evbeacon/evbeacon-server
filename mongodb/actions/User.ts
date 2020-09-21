@@ -80,7 +80,9 @@ export const verifyToken = async (token: string): Promise<UserJWTType> => {
   return jwt.verify(token, process.env.JWT_SECRET as string) as UserJWTType;
 };
 
-export const verifyTokenSecure = async (token: string): Promise<UserType> => {
+export const verifyTokenSecure = async (
+  token: string
+): Promise<SafeUserType> => {
   if (token == null || token.length === 0) {
     throw new Error("User is not signed in!");
   }
@@ -98,7 +100,9 @@ export const verifyTokenSecure = async (token: string): Promise<UserType> => {
     throw new Error("User does not exist!");
   }
 
-  return user;
+  const { password, ...rest } = user;
+
+  return rest;
 };
 
 export const getUser = async ({
@@ -113,11 +117,7 @@ export const getUser = async ({
   }
 
   if (token != null) {
-    const user = await verifyTokenSecure(token);
-
-    const { password, ...rest } = user;
-
-    return rest;
+    return verifyTokenSecure(token);
   }
 
   await initDB();

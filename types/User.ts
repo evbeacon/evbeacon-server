@@ -12,6 +12,7 @@ export interface UserType extends MongooseDocument {
 }
 
 export interface SafeUserType {
+  _id: UserType["_id"];
   email: UserType["email"];
   role: UserType["role"];
   name: UserType["name"];
