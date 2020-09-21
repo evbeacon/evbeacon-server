@@ -6,6 +6,7 @@ import {
   verifyToken,
   verifyTokenSecure,
   updateUser,
+  generateJWT,
 } from "./User";
 
 describe("User", () => {
@@ -27,6 +28,81 @@ describe("User", () => {
     expect(insertedUser).not.toBeNull();
     expect(insertedUser.email).toEqual(mockUser.email);
     expect(insertedUser.name).toEqual(mockUser.name);
+  });
+
+  it("should get user from userId", async () => {
+    const mockUser = {
+      email: "fromUserId@example.com",
+      password: "Test123",
+      name: "Test User",
+    };
+
+    const token = await signUp(mockUser);
+    const decodedUser = await verifyToken(token);
+
+    const gotUser = await getUser({ userId: decodedUser._id });
+
+    expect(gotUser).not.toBeNull();
+    expect(gotUser.email).toEqual(mockUser.email);
+    expect(gotUser.name).toEqual(mockUser.name);
+  });
+
+  it("should fail sign-up on missing params", async () => {
+    const mockUser = {
+      email: "example@example.com",
+    };
+
+    try {
+      await signUp(mockUser as any);
+    } catch (error) {
+      expect(error.message).toEqual("All parameters must be provided!");
+    }
+  });
+
+  it("should fail login on missing params", async () => {
+    const mockUser = {
+      email: "example@example.com",
+    };
+
+    try {
+      await login(mockUser as any);
+    } catch (error) {
+      expect(error.message).toEqual("All parameters must be provided!");
+    }
+  });
+
+  it("should fail login on missing user", async () => {
+    const mockUser = {
+      email: "missing@example.com",
+      password: "Test123",
+    };
+
+    try {
+      await login(mockUser);
+    } catch (error) {
+      expect(error.message).toEqual("User not found!");
+    }
+  });
+
+  it("should fail login on incorrect password", async () => {
+    const mockUser = {
+      email: "incorrect@example.com",
+      name: "Test User",
+      password: "Test123",
+    };
+
+    const mockLogin = {
+      email: mockUser.email,
+      password: "WrongPassword123",
+    };
+
+    try {
+      await signUp(mockUser);
+
+      await login(mockLogin);
+    } catch (error) {
+      expect(error.message).toEqual("The password you entered is incorrect!");
+    }
   });
 
   it("should have matching jwt info", async () => {
@@ -68,7 +144,10 @@ describe("User", () => {
 
     const loginToken = await login(mockUser);
     expect(loginToken).not.toBeNull();
-    expect(loginToken).toEqual(signUpToken);
+
+    const decodedSignUp = await verifyToken(signUpToken);
+    const decodedLogin = await verifyToken(loginToken);
+    expect(decodedLogin._id).toEqual(decodedSignUp._id);
   });
 
   it("should retrieve full user from jwt", async () => {
@@ -112,5 +191,75 @@ describe("User", () => {
 
     expect(insertedUser).not.toEqual(updatedUser);
     expect(updatedUser.name).toEqual(newFields.name);
+  });
+
+  it("should fail getUser on missing token", async () => {
+    try {
+      await getUser({ token: null } as any);
+    } catch (error) {
+      expect(error.message).toEqual("Token or UserID must be provided!");
+    }
+  });
+
+  it("should fail getUser on missing userId", async () => {
+    try {
+      await getUser({ userId: null });
+    } catch (error) {
+      expect(error.message).toEqual("Token or UserID must be provided!");
+    }
+  });
+
+  it("should fail getUser on missing user", async () => {
+    try {
+      await getUser({ userId: "5f68a882170de39b76935ee5" });
+    } catch (error) {
+      expect(error.message).toEqual("User does not exist!");
+    }
+  });
+
+  it("should fail verifyToken on missing token", async () => {
+    try {
+      await verifyToken(null as any);
+    } catch (error) {
+      expect(error.message).toEqual("User is not signed in!");
+    }
+  });
+
+  it("should fail verifyTokenSecure on missing token", async () => {
+    try {
+      await verifyTokenSecure(null as any);
+    } catch (error) {
+      expect(error.message).toEqual("User is not signed in!");
+    }
+  });
+
+  it("should fail verifyTokenSecure on missing user", async () => {
+    try {
+      const mockUser = {
+        _id: "5f68a882170de39b76935ee5",
+      };
+
+      const mockJWT = generateJWT(mockUser as any);
+
+      await verifyTokenSecure(mockJWT);
+    } catch (error) {
+      expect(error.message).toEqual("User does not exist!");
+    }
+  });
+
+  it("should fail updateUser on missing userId", async () => {
+    try {
+      await updateUser({ _id: null });
+    } catch (error) {
+      expect(error.message).toEqual("UserID must be provided!");
+    }
+  });
+
+  it("should fail updateUser on missing user", async () => {
+    try {
+      await updateUser({ _id: "5f68a882170de39b76935ee5" });
+    } catch (error) {
+      expect(error.message).toEqual("User does not exist!");
+    }
   });
 });

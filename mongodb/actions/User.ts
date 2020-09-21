@@ -11,7 +11,7 @@ import {
   UpdateUserType,
 } from "../../types/User";
 
-const generateJWT = (user: UserType): string =>
+export const generateJWT = (user: UserType): string =>
   jwt.sign(
     {
       _id: user._id,
