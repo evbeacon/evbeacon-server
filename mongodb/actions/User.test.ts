@@ -3,9 +3,10 @@ import {
   signUp,
   login,
   getUser,
+  updateUser,
+  banUser,
   verifyToken,
   verifyTokenSecure,
-  updateUser,
   generateJWT,
 } from "./User";
 
@@ -40,7 +41,7 @@ describe("User", () => {
     const token = await signUp(mockUser);
     const decodedUser = await verifyToken(token);
 
-    const gotUser = await getUser({ userId: decodedUser._id });
+    const gotUser = await getUser({ _id: decodedUser._id });
 
     expect(gotUser).not.toBeNull();
     expect(gotUser.email).toEqual(mockUser.email);
@@ -203,7 +204,7 @@ describe("User", () => {
 
   it("should fail getUser on missing userId", async () => {
     try {
-      await getUser({ userId: null });
+      await getUser({ _id: null });
     } catch (error) {
       expect(error.message).toEqual("Token or UserID must be provided!");
     }
@@ -211,7 +212,39 @@ describe("User", () => {
 
   it("should fail getUser on missing user", async () => {
     try {
-      await getUser({ userId: "5f68a882170de39b76935ee5" });
+      await getUser({ _id: "5f68a882170de39b76935ee5" });
+    } catch (error) {
+      expect(error.message).toEqual("User does not exist!");
+    }
+  });
+
+  it("should ban user", async () => {
+    const mockUser = {
+      email: "ban@example.com",
+      password: "Test123",
+      name: "Update User",
+    };
+
+    const token = await signUp(mockUser);
+    const insertedUser = await getUser({ token });
+
+    const bannedUser = await banUser({ _id: insertedUser._id });
+
+    expect(bannedUser).not.toBeNull();
+    expect(bannedUser.banned).toEqual(true);
+  });
+
+  it("should fail banUser on missing userId", async () => {
+    try {
+      await banUser({ _id: null });
+    } catch (error) {
+      expect(error.message).toEqual("UserID must be provided!");
+    }
+  });
+
+  it("should fail banUser on missing user", async () => {
+    try {
+      await banUser({ _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("User does not exist!");
     }

@@ -40,6 +40,11 @@ export interface LoginUserType {
   password: UserType["password"];
 }
 
+export interface GetUserType {
+  _id?: UserType["_id"];
+  token?: string;
+}
+
 export interface UpdateUserType {
   _id: UserType["_id"];
   name?: UserType["name"];
@@ -50,5 +55,5 @@ export interface UpdateUserType {
 
 export interface BanUserType {
   _id: UserType["_id"];
-  banned: UserType["banned"];
+  banned?: UserType["banned"];
 }

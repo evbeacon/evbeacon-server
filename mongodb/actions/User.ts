@@ -8,7 +8,9 @@ import {
   UserJWTType,
   NewUserType,
   LoginUserType,
+  GetUserType,
   UpdateUserType,
+  BanUserType,
 } from "../../types/User";
 
 export const generateJWT = (user: UserType): string =>
@@ -107,12 +109,9 @@ export const verifyTokenSecure = async (
 
 export const getUser = async ({
   token,
-  userId,
-}: {
-  token?: string;
-  userId?: UserType["_id"];
-}): Promise<SafeUserType> => {
-  if (token == null && userId == null) {
+  _id,
+}: GetUserType): Promise<SafeUserType> => {
+  if (token == null && _id == null) {
     throw new Error("Token or UserID must be provided!");
   }
 
@@ -122,7 +121,7 @@ export const getUser = async ({
 
   await initDB();
 
-  const user = (await User.findById(userId).lean()) as UserType;
+  const user = (await User.findById(_id).lean()) as UserType;
   if (user == null) {
     throw new Error("User does not exist!");
   }
@@ -156,6 +155,38 @@ export const updateUser = async ({
   }
 
   const { password, ...rest } = newUser;
+
+  return rest;
+};
+
+export const banUser = async ({
+  _id,
+  banned = true,
+}: BanUserType): Promise<SafeUserType> => {
+  if (_id == null) {
+    throw new Error("UserID must be provided!");
+  }
+
+  await initDB();
+
+  const bannedUser = (await User.findByIdAndUpdate(
+    _id,
+    {
+      $set: {
+        banned,
+      },
+    },
+    {
+      new: true,
+      lean: true,
+    }
+  )) as UserType;
+
+  if (bannedUser == null) {
+    throw new Error("User does not exist!");
+  }
+
+  const { password, ...rest } = bannedUser;
 
   return rest;
 };

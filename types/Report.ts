@@ -20,6 +20,10 @@ export interface NewReportType {
   explanation: ReportType["explanation"];
 }
 
+export interface GetReportType {
+  _id: ReportType["_id"];
+}
+
 export interface UpdateReportType {
   _id: ReportType["_id"];
   decided: ReportType["decided"];

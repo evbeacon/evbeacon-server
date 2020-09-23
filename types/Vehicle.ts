@@ -20,3 +20,11 @@ export interface NewVehicleType {
   plugType: VehicleType["plugType"];
   licensePlate: VehicleType["licensePlate"];
 }
+
+export interface GetVehicleType {
+  _id: VehicleType["_id"];
+}
+
+export interface DeleteVehicleType {
+  _id: VehicleType["_id"];
+}

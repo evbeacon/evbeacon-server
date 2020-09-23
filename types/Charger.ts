@@ -28,11 +28,6 @@ export interface NewChargerType {
 
 export interface GetChargerType {
   _id: ChargerType["_id"];
-  plugType?: ChargerType["plugType"];
-  description?: ChargerType["description"];
-  offHoursStartUTC?: ChargerType["offHoursStartUTC"];
-  offHoursEndUTC?: ChargerType["offHoursEndUTC"];
-  disabledUntilUTC?: ChargerType["disabledUntilUTC"];
 }
 
 export interface UpdateChargerType {
@@ -42,6 +37,10 @@ export interface UpdateChargerType {
   offHoursStartUTC?: ChargerType["offHoursStartUTC"];
   offHoursEndUTC?: ChargerType["offHoursEndUTC"];
   disabledUntilUTC?: ChargerType["disabledUntilUTC"];
+}
+
+export interface DeleteChargerType {
+  _id: ChargerType["_id"];
 }
 
 export interface BanChargerType {
