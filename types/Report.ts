@@ -26,7 +26,7 @@ export interface GetReportType {
 
 export interface UpdateReportType {
   _id: ReportType["_id"];
-  decided: ReportType["decided"];
-  decidedBy: ReportType["decidedBy"];
-  ruling: ReportType["ruling"];
+  decided?: ReportType["decided"];
+  decidedBy?: ReportType["decidedBy"];
+  ruling?: ReportType["ruling"];
 }
