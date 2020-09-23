@@ -1,6 +1,4 @@
-import { Schema } from "mongoose";
-
-export interface AddressType extends Schema {
+export interface AddressType {
   street: string;
   city: string;
   state: string;

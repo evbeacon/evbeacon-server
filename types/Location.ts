@@ -1,6 +1,4 @@
-import { Schema } from "mongoose";
-
-export interface LocationType extends Schema {
-  type: "Point";
+export interface LocationType {
+  type?: "Point";
   coordinates: number[];
 }
