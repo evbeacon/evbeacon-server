@@ -24,8 +24,9 @@ export interface GetBeaconType {
   _id: ChargerType["_id"];
 }
 
-export interface UpdateBeaconType {
-  allowedChargers: BeaconType["allowedChargers"];
+export interface UpdateBeaconChargerType {
+  _id: ChargerType["_id"];
+  charger: ChargerType["_id"];
 }
 
 export interface CancelBeaconType {
