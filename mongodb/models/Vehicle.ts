@@ -39,6 +39,11 @@ const VehicleSchema = new mongoose.Schema(
       trim: true,
       minlength: 1,
     },
+    banned: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   {
     timestamps: true,

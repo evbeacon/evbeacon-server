@@ -3,6 +3,7 @@ import {
   createCharger,
   getCharger,
   updateCharger,
+  deleteCharger,
   banCharger,
 } from "./Charger";
 
@@ -98,6 +99,35 @@ describe("Charger", () => {
   it("should fail updateCharger on missing charger", async () => {
     try {
       await updateCharger({ _id: "5f68a882170de39b76935ee5" });
+    } catch (error) {
+      expect(error.message).toEqual("Charger does not exist!");
+    }
+  });
+
+  it("should delete charger", async () => {
+    const insertedCharger = await createCharger(mockCharger);
+
+    expect(insertedCharger).not.toBeNull();
+    expect(insertedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
+
+    const bannedCharger = await deleteCharger({ _id: insertedCharger._id });
+
+    expect(bannedCharger).not.toBeNull();
+    expect(bannedCharger.owner.toString()).toEqual(mockCharger.owner);
+  });
+
+  it("should fail deleteCharger on missing chargerId", async () => {
+    try {
+      await deleteCharger({ _id: null });
+    } catch (error) {
+      expect(error.message).toEqual("ChargerID must be provided!");
+    }
+  });
+
+  it("should fail banCharger on missing charger", async () => {
+    try {
+      await deleteCharger({ _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Charger does not exist!");
     }
