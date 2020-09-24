@@ -33,10 +33,11 @@ export const createBeacon = async (
 };
 
 export const getNearbyChargers = async (
-  beacon: BeaconType,
-  vehicleId: VehicleType["_id"]
+  beacon: BeaconType
 ): Promise<ChargerType[]> => {
-  const vehicle = (await Vehicle.findById(vehicleId).lean()) as VehicleType;
+  const vehicle = (await Vehicle.findById(
+    beacon.vehicle
+  ).lean()) as VehicleType;
 
   const currentDate = new Date();
 
@@ -58,7 +59,7 @@ export const getNearbyChargers = async (
 
   const currentHour = dayjs().utc().hour();
 
-  return chargers.filter(
+  const nearbyChargers = chargers.filter(
     ({ offHoursStartUTC: start, offHoursEndUTC: end }: ChargerType) => {
       if (start != null && end != null) {
         if (start <= end) {
@@ -71,6 +72,12 @@ export const getNearbyChargers = async (
       return true;
     }
   );
+
+  if (nearbyChargers.length === 0) {
+    throw new Error("No nearby chargers!");
+  }
+
+  return nearbyChargers;
 };
 
 export const getBeacon = async ({
