@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import {
   createBeacon,
+  getNearbyChargers,
   getBeacon,
   updateBeaconCharger,
   cancelBeacon,
 } from "./Beacon";
 import { createCharger } from "./Charger";
+import { createVehicle } from "./Vehicle";
 
 const mockBeacon = {
   owner: "5f68a882170de39b76935ee5",
@@ -28,6 +30,16 @@ const mockCharger = {
     country: "United States of America",
   },
   plugType: "Tesla",
+};
+
+const mockVehicle = {
+  owner: "5f68a882170de39b76935ee5",
+  year: 2020,
+  make: "Tesla",
+  model: "3",
+  color: "Grey",
+  plugType: "Tesla",
+  licensePlate: "1a2b3c",
 };
 
 describe("Beacon", () => {
@@ -76,6 +88,28 @@ describe("Beacon", () => {
     } catch (error) {
       expect(error.message).toEqual("Beacon does not exist!");
     }
+  });
+
+  it("should get nearby chargers", async () => {
+    const insertedBeacon = await createBeacon(mockBeacon);
+
+    expect(insertedBeacon).not.toBeNull();
+    expect(insertedBeacon.owner.toString()).toEqual(mockBeacon.owner);
+    expect(insertedBeacon.vehicleRange).toEqual(mockBeacon.vehicleRange);
+
+    const insertedVehicle = await createVehicle(mockVehicle);
+
+    expect(insertedVehicle).not.toBeNull();
+    expect(insertedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
+
+    const nearbyChargers = await getNearbyChargers(
+      insertedBeacon,
+      insertedVehicle
+    );
+    console.log("nearbyChargers", nearbyChargers);
+
+    expect(nearbyChargers).not.toBeNull();
   });
 
   it("should update beacon", async () => {

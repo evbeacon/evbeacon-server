@@ -9,9 +9,9 @@ export interface ChargerType extends MongooseDocument {
   address: AddressType;
   plugType: string;
   description?: string;
-  offHoursStartUTC?: string;
-  offHoursEndUTC?: string;
-  disabledUntilUTC?: string;
+  offHoursStartUTC?: number;
+  offHoursEndUTC?: number;
+  disabledUntil?: Date;
   banned: boolean;
 }
 
@@ -23,7 +23,7 @@ export interface NewChargerType {
   description?: ChargerType["description"];
   offHoursStartUTC?: ChargerType["offHoursStartUTC"];
   offHoursEndUTC?: ChargerType["offHoursEndUTC"];
-  disabledUntilUTC?: ChargerType["disabledUntilUTC"];
+  disabledUntil?: ChargerType["disabledUntil"];
 }
 
 export interface GetChargerType {
@@ -36,7 +36,7 @@ export interface UpdateChargerType {
   description?: ChargerType["description"];
   offHoursStartUTC?: ChargerType["offHoursStartUTC"];
   offHoursEndUTC?: ChargerType["offHoursEndUTC"];
-  disabledUntilUTC?: ChargerType["disabledUntilUTC"];
+  disabledUntil?: ChargerType["disabledUntil"];
 }
 
 export interface DeleteChargerType {

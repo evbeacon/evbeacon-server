@@ -30,12 +30,15 @@ const ChargerSchema = new mongoose.Schema(
     },
     offHoursStartUTC: {
       type: Date,
+      index: true,
     },
     offHoursEndUTC: {
       type: Date,
+      index: true,
     },
-    disabledUntilUTC: {
+    disabledUntil: {
       type: Date,
+      index: true,
     },
     banned: {
       type: Boolean,

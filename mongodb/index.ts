@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import dayjs from "dayjs";
+import utcTime from "dayjs/plugin/utc";
+
+dayjs.extend(utcTime);
 
 const isTesting = process.env.NODE_ENV === "test";
 
