@@ -6,15 +6,40 @@ import {
   deleteVehicle,
   banVehicle,
 } from "./Vehicle";
+import { SafeUserType } from "../../types/User";
+import { getUser, signUp } from "./User";
+import User from "../models/User";
 
 describe("Vehicle", () => {
+  let admin: SafeUserType;
+  beforeAll(async () => {
+    const token = await signUp({
+      email: "vehicle@hello.com",
+      password: "somePass",
+      name: "My Name",
+    });
+
+    admin = await getUser({ token });
+
+    admin = await User.findByIdAndUpdate(
+      admin._id,
+      {
+        $set: {
+          role: "Admin",
+        },
+      },
+      {
+        new: true,
+      }
+    );
+  });
+
   afterAll(async () => {
     await mongoose.disconnect();
   });
 
   it("should create a new vehicle", async () => {
     const mockVehicle = {
-      owner: "5f68a882170de39b76935ee5",
       year: 2020,
       make: "Tesla",
       model: "3",
@@ -23,16 +48,16 @@ describe("Vehicle", () => {
       licensePlate: "1a",
     };
 
-    const insertedVehicle = await createVehicle(mockVehicle);
+    const insertedVehicle = await createVehicle(admin, mockVehicle);
 
     expect(insertedVehicle).not.toBeNull();
-    expect(insertedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
   });
 
   it("should fail createVehicle on null value", async () => {
     try {
-      await createVehicle({ owner: null } as any);
+      await createVehicle(admin, { plugType: null } as any);
     } catch (error) {
       expect(error.message).toEqual("All parameters must be provided!");
     }
@@ -40,7 +65,6 @@ describe("Vehicle", () => {
 
   it("should get vehicle from vehicleId", async () => {
     const mockVehicle = {
-      owner: "5f68a882170de39b76935ee5",
       year: 2020,
       make: "Tesla",
       model: "3",
@@ -49,19 +73,19 @@ describe("Vehicle", () => {
       licensePlate: "2b",
     };
 
-    const insertedVehicle = await createVehicle(mockVehicle);
+    const insertedVehicle = await createVehicle(admin, mockVehicle);
 
     expect(insertedVehicle).not.toBeNull();
-    expect(insertedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
 
-    const gotVehicle = await getVehicle({ _id: insertedVehicle._id });
+    const gotVehicle = await getVehicle(admin, { _id: insertedVehicle._id });
     expect(gotVehicle).toEqual(insertedVehicle);
   });
 
   it("should fail getVehicle on missing vehicleId", async () => {
     try {
-      await getVehicle({ _id: null });
+      await getVehicle(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("VehicleID must be provided!");
     }
@@ -69,7 +93,7 @@ describe("Vehicle", () => {
 
   it("should fail getVehicle on missing vehicle", async () => {
     try {
-      await getVehicle({ _id: "5f68a882170de39b76935ee5" });
+      await getVehicle(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Vehicle does not exist!");
     }
@@ -77,7 +101,6 @@ describe("Vehicle", () => {
 
   it("should update vehicle", async () => {
     const mockVehicle = {
-      owner: "5f68a882170de39b76935ee5",
       year: 2020,
       make: "Tesla",
       model: "3",
@@ -86,10 +109,10 @@ describe("Vehicle", () => {
       licensePlate: "3c",
     };
 
-    const insertedVehicle = await createVehicle(mockVehicle);
+    const insertedVehicle = await createVehicle(admin, mockVehicle);
 
     expect(insertedVehicle).not.toBeNull();
-    expect(insertedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
 
     const updateFields = {
@@ -97,16 +120,16 @@ describe("Vehicle", () => {
       color: "Red",
     };
 
-    const updatedVehicle = await updateVehicle(updateFields);
+    const updatedVehicle = await updateVehicle(admin, updateFields);
 
     expect(updatedVehicle).not.toBeNull();
-    expect(updatedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(updatedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(updatedVehicle.color).toEqual(updateFields.color);
   });
 
   it("should fail updateVehicle on missing vehicleId", async () => {
     try {
-      await updateVehicle({ _id: null });
+      await updateVehicle(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("VehicleID must be provided!");
     }
@@ -114,7 +137,7 @@ describe("Vehicle", () => {
 
   it("should fail updateVehicle on missing vehicle", async () => {
     try {
-      await updateVehicle({ _id: "5f68a882170de39b76935ee5" });
+      await updateVehicle(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Vehicle does not exist!");
     }
@@ -122,7 +145,6 @@ describe("Vehicle", () => {
 
   it("should delete vehicle", async () => {
     const mockVehicle = {
-      owner: "5f68a882170de39b76935ee5",
       year: 2020,
       make: "Tesla",
       model: "3",
@@ -131,21 +153,23 @@ describe("Vehicle", () => {
       licensePlate: "4d",
     };
 
-    const insertedVehicle = await createVehicle(mockVehicle);
+    const insertedVehicle = await createVehicle(admin, mockVehicle);
 
     expect(insertedVehicle).not.toBeNull();
-    expect(insertedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
 
-    const bannedVehicle = await deleteVehicle({ _id: insertedVehicle._id });
+    const bannedVehicle = await deleteVehicle(admin, {
+      _id: insertedVehicle._id,
+    });
 
     expect(bannedVehicle).not.toBeNull();
-    expect(bannedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(bannedVehicle.owner.toString()).toEqual(admin._id.toString());
   });
 
   it("should fail deleteVehicle on missing vehicleId", async () => {
     try {
-      await deleteVehicle({ _id: null });
+      await deleteVehicle(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("VehicleID must be provided!");
     }
@@ -153,7 +177,7 @@ describe("Vehicle", () => {
 
   it("should fail banVehicle on missing vehicle", async () => {
     try {
-      await deleteVehicle({ _id: "5f68a882170de39b76935ee5" });
+      await deleteVehicle(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Vehicle does not exist!");
     }
@@ -161,7 +185,6 @@ describe("Vehicle", () => {
 
   it("should ban vehicle", async () => {
     const mockVehicle = {
-      owner: "5f68a882170de39b76935ee5",
       year: 2020,
       make: "Tesla",
       model: "3",
@@ -170,22 +193,22 @@ describe("Vehicle", () => {
       licensePlate: "5e",
     };
 
-    const insertedVehicle = await createVehicle(mockVehicle);
+    const insertedVehicle = await createVehicle(admin, mockVehicle);
 
     expect(insertedVehicle).not.toBeNull();
-    expect(insertedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
 
-    const bannedVehicle = await banVehicle({ _id: insertedVehicle._id });
+    const bannedVehicle = await banVehicle(admin, { _id: insertedVehicle._id });
 
     expect(bannedVehicle).not.toBeNull();
-    expect(bannedVehicle.owner.toString()).toEqual(mockVehicle.owner);
+    expect(bannedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(bannedVehicle.banned).toEqual(true);
   });
 
   it("should fail banVehicle on missing vehicleId", async () => {
     try {
-      await banVehicle({ _id: null });
+      await banVehicle(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("VehicleID must be provided!");
     }
@@ -193,7 +216,7 @@ describe("Vehicle", () => {
 
   it("should fail banVehicle on missing vehicle", async () => {
     try {
-      await banVehicle({ _id: "5f68a882170de39b76935ee5" });
+      await banVehicle(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Vehicle does not exist!");
     }

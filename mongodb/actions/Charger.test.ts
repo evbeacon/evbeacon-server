@@ -6,56 +6,83 @@ import {
   deleteCharger,
   banCharger,
 } from "./Charger";
-
-const mockCharger = {
-  owner: "5f68a882170de39b76935ee5",
-  location: {
-    coordinates: [1, 2],
-  },
-  address: {
-    street: "1 Main St",
-    city: "New York",
-    state: "New York",
-    country: "United States of America",
-  },
-  plugType: "Tesla",
-};
+import { SafeUserType } from "../../types/User";
+import { NewChargerActionType } from "../../types/Charger";
+import { getUser, signUp } from "./User";
+import User from "../models/User";
 
 describe("Charger", () => {
+  let admin: SafeUserType;
+  let mockCharger: NewChargerActionType;
+  beforeAll(async () => {
+    const token = await signUp({
+      email: "charger@hello.com",
+      password: "somePass",
+      name: "My Name",
+    });
+
+    admin = await getUser({ token });
+
+    admin = await User.findByIdAndUpdate(
+      admin._id,
+      {
+        $set: {
+          role: "Admin",
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    mockCharger = {
+      location: {
+        coordinates: [1, 2],
+      },
+      address: {
+        street: "1 Main St",
+        city: "New York",
+        state: "New York",
+        country: "United States of America",
+      },
+      plugType: "Tesla",
+    };
+  });
+
   afterAll(async () => {
     await mongoose.disconnect();
   });
 
   it("should create a new charger", async () => {
-    const insertedCharger = await createCharger(mockCharger);
+    const insertedCharger = await createCharger(admin, mockCharger);
 
     expect(insertedCharger).not.toBeNull();
-    expect(insertedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
   });
 
   it("should fail createCharger on null value", async () => {
     try {
-      await createCharger({ owner: null } as any);
+      await createCharger(admin, { plugType: null } as any);
     } catch (error) {
       expect(error.message).toEqual("All parameters must be provided!");
     }
   });
 
   it("should get charger from chargerId", async () => {
-    const insertedCharger = await createCharger(mockCharger);
+    const insertedCharger = await createCharger(admin, mockCharger);
 
     expect(insertedCharger).not.toBeNull();
-    expect(insertedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
 
-    const gotCharger = await getCharger({ _id: insertedCharger._id });
+    const gotCharger = await getCharger(admin, { _id: insertedCharger._id });
     expect(gotCharger).toEqual(insertedCharger);
   });
 
   it("should fail getCharger on missing chargerId", async () => {
     try {
-      await getCharger({ _id: null });
+      await getCharger(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("ChargerID must be provided!");
     }
@@ -63,17 +90,17 @@ describe("Charger", () => {
 
   it("should fail getCharger on missing charger", async () => {
     try {
-      await getCharger({ _id: "5f68a882170de39b76935ee5" });
+      await getCharger(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Charger does not exist!");
     }
   });
 
   it("should update charger", async () => {
-    const insertedCharger = await createCharger(mockCharger);
+    const insertedCharger = await createCharger(admin, mockCharger);
 
     expect(insertedCharger).not.toBeNull();
-    expect(insertedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
 
     const updateFields = {
@@ -81,16 +108,16 @@ describe("Charger", () => {
       description: "Hello world",
     };
 
-    const updatedCharger = await updateCharger(updateFields);
+    const updatedCharger = await updateCharger(admin, updateFields);
 
     expect(updatedCharger).not.toBeNull();
-    expect(updatedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(updatedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(updatedCharger.description).toEqual(updateFields.description);
   });
 
   it("should fail updateCharger on missing chargerId", async () => {
     try {
-      await updateCharger({ _id: null });
+      await updateCharger(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("ChargerID must be provided!");
     }
@@ -98,28 +125,30 @@ describe("Charger", () => {
 
   it("should fail updateCharger on missing charger", async () => {
     try {
-      await updateCharger({ _id: "5f68a882170de39b76935ee5" });
+      await updateCharger(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Charger does not exist!");
     }
   });
 
   it("should delete charger", async () => {
-    const insertedCharger = await createCharger(mockCharger);
+    const insertedCharger = await createCharger(admin, mockCharger);
 
     expect(insertedCharger).not.toBeNull();
-    expect(insertedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
 
-    const bannedCharger = await deleteCharger({ _id: insertedCharger._id });
+    const bannedCharger = await deleteCharger(admin, {
+      _id: insertedCharger._id,
+    });
 
     expect(bannedCharger).not.toBeNull();
-    expect(bannedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(bannedCharger.owner.toString()).toEqual(admin._id.toString());
   });
 
   it("should fail deleteCharger on missing chargerId", async () => {
     try {
-      await deleteCharger({ _id: null });
+      await deleteCharger(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("ChargerID must be provided!");
     }
@@ -127,29 +156,29 @@ describe("Charger", () => {
 
   it("should fail banCharger on missing charger", async () => {
     try {
-      await deleteCharger({ _id: "5f68a882170de39b76935ee5" });
+      await deleteCharger(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Charger does not exist!");
     }
   });
 
   it("should ban charger", async () => {
-    const insertedCharger = await createCharger(mockCharger);
+    const insertedCharger = await createCharger(admin, mockCharger);
 
     expect(insertedCharger).not.toBeNull();
-    expect(insertedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
 
-    const bannedCharger = await banCharger({ _id: insertedCharger._id });
+    const bannedCharger = await banCharger(admin, { _id: insertedCharger._id });
 
     expect(bannedCharger).not.toBeNull();
-    expect(bannedCharger.owner.toString()).toEqual(mockCharger.owner);
+    expect(bannedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(bannedCharger.banned).toEqual(true);
   });
 
   it("should fail banCharger on missing chargerId", async () => {
     try {
-      await banCharger({ _id: null });
+      await banCharger(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("ChargerID must be provided!");
     }
@@ -157,7 +186,7 @@ describe("Charger", () => {
 
   it("should fail banCharger on missing charger", async () => {
     try {
-      await banCharger({ _id: "5f68a882170de39b76935ee5" });
+      await banCharger(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Charger does not exist!");
     }

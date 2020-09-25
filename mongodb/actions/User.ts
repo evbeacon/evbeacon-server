@@ -137,7 +137,7 @@ export const updateUser = async (
 ): Promise<SafeUserType> => {
   if (_id == null) {
     throw new Error("UserID must be provided!");
-  } else if (user.role !== "Admin" && user._id.toString() !== _id) {
+  } else if (user.role !== "Admin" && user._id.toString() !== _id.toString()) {
     throw new Error("Only the user can edit their own profile!");
   }
 

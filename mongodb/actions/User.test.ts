@@ -9,8 +9,33 @@ import {
   verifyTokenSecure,
   generateJWT,
 } from "./User";
+import { SafeUserType } from "../../types/User";
+import User from "../models/User";
 
 describe("User", () => {
+  let admin: SafeUserType;
+  beforeAll(async () => {
+    const token = await signUp({
+      email: "user@hello.com",
+      password: "somePass",
+      name: "My Name",
+    });
+
+    admin = await getUser({ token });
+
+    admin = await User.findByIdAndUpdate(
+      admin._id,
+      {
+        $set: {
+          role: "Admin",
+        },
+      },
+      {
+        new: true,
+      }
+    );
+  });
+
   afterAll(async () => {
     await mongoose.disconnect();
   });
@@ -185,7 +210,7 @@ describe("User", () => {
       name: "New Name",
     };
 
-    const updatedUser = await updateUser({
+    const updatedUser = await updateUser(insertedUser, {
       _id: insertedUser._id,
       ...newFields,
     });
@@ -228,15 +253,16 @@ describe("User", () => {
     const token = await signUp(mockUser);
     const insertedUser = await getUser({ token });
 
-    const bannedUser = await banUser({ _id: insertedUser._id });
+    const bannedUser = await banUser(admin, { _id: insertedUser._id });
 
     expect(bannedUser).not.toBeNull();
+    expect(bannedUser._id.toString()).toEqual(insertedUser._id.toString());
     expect(bannedUser.banned).toEqual(true);
   });
 
   it("should fail banUser on missing userId", async () => {
     try {
-      await banUser({ _id: null });
+      await banUser(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("UserID must be provided!");
     }
@@ -244,7 +270,7 @@ describe("User", () => {
 
   it("should fail banUser on missing user", async () => {
     try {
-      await banUser({ _id: "5f68a882170de39b76935ee5" });
+      await banUser(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("User does not exist!");
     }
@@ -282,7 +308,7 @@ describe("User", () => {
 
   it("should fail updateUser on missing userId", async () => {
     try {
-      await updateUser({ _id: null });
+      await updateUser(admin, { _id: null });
     } catch (error) {
       expect(error.message).toEqual("UserID must be provided!");
     }
@@ -290,7 +316,7 @@ describe("User", () => {
 
   it("should fail updateUser on missing user", async () => {
     try {
-      await updateUser({ _id: "5f68a882170de39b76935ee5" });
+      await updateUser(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("User does not exist!");
     }

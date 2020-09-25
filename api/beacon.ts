@@ -5,13 +5,13 @@ import updateBeaconCharger from "../apiHandlers/Beacon/updateBeaconCharger";
 import cancelBeacon from "../apiHandlers/Beacon/cancelBeacon";
 
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) => {
-  if (req.method === "get") {
+  if (req.method === "GET") {
     return getBeacon(req, res);
-  } else if (req.method === "post") {
+  } else if (req.method === "POST") {
     return createBeacon(req, res);
-  } else if (req.method === "patch") {
+  } else if (req.method === "PATCH") {
     return updateBeaconCharger(req, res);
-  } else if (req.method === "delete") {
+  } else if (req.method === "DELETE") {
     return cancelBeacon(req, res);
   } else {
     return res.status(400).json({

@@ -6,15 +6,15 @@ import deleteCharger from "../apiHandlers/Charger/deleteCharger";
 import banCharger from "../apiHandlers/Charger/banCharger";
 
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) => {
-  if (req.method === "get") {
+  if (req.method === "GET") {
     return getCharger(req, res);
-  } else if (req.method === "post") {
+  } else if (req.method === "POST") {
     return createCharger(req, res);
-  } else if (req.method === "patch") {
+  } else if (req.method === "PATCH") {
     return updateCharger(req, res);
-  } else if (req.method === "delete") {
+  } else if (req.method === "DELETE") {
     return deleteCharger(req, res);
-  } else if (req.method === "put") {
+  } else if (req.method === "PUT") {
     return banCharger(req, res);
   } else {
     return res.status(400).json({

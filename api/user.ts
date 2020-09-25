@@ -6,15 +6,15 @@ import updateUser from "../apiHandlers/User/updateUser";
 import banUser from "../apiHandlers/User/banUser";
 
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) => {
-  if (req.method === "get") {
+  if (req.method === "GET") {
     return getUser(req, res);
-  } else if (req.method === "post") {
+  } else if (req.method === "POST") {
     return signUp(req, res);
-  } else if (req.method === "head") {
+  } else if (req.method === "HEAD") {
     return login(req, res);
-  } else if (req.method === "patch") {
+  } else if (req.method === "PATCH") {
     return updateUser(req, res);
-  } else if (req.method === "put") {
+  } else if (req.method === "PUT") {
     return banUser(req, res);
   } else {
     return res.status(400).json({
