@@ -13,22 +13,21 @@ export interface BeaconType extends MongooseDocument {
   cancelled: boolean;
 }
 
-export interface NewBeaconType {
-  owner: BeaconType["owner"];
+export interface NewBeaconActionType {
   vehicle: BeaconType["vehicle"];
   vehicleRange: BeaconType["vehicleRange"];
   location: BeaconType["location"];
 }
 
-export interface GetBeaconType {
-  _id: ChargerType["_id"];
+export interface GetBeaconActionType {
+  _id: BeaconType["_id"];
 }
 
-export interface UpdateBeaconChargerType {
-  _id: ChargerType["_id"];
+export interface UpdateBeaconChargerActionType {
+  _id: BeaconType["_id"];
   charger: ChargerType["_id"];
 }
 
-export interface CancelBeaconType {
+export interface CancelBeaconActionType {
   _id: ChargerType["_id"];
 }

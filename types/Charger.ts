@@ -15,8 +15,7 @@ export interface ChargerType extends MongooseDocument {
   banned: boolean;
 }
 
-export interface NewChargerType {
-  owner: ChargerType["owner"];
+export interface NewChargerActionType {
   location: ChargerType["location"];
   address: ChargerType["address"];
   plugType: ChargerType["plugType"];
@@ -26,11 +25,11 @@ export interface NewChargerType {
   disabledUntil?: ChargerType["disabledUntil"];
 }
 
-export interface GetChargerType {
+export interface GetChargerActionType {
   _id: ChargerType["_id"];
 }
 
-export interface UpdateChargerType {
+export interface UpdateChargerActionType {
   _id: ChargerType["_id"];
   plugType?: ChargerType["plugType"];
   description?: ChargerType["description"];
@@ -39,11 +38,11 @@ export interface UpdateChargerType {
   disabledUntil?: ChargerType["disabledUntil"];
 }
 
-export interface DeleteChargerType {
+export interface DeleteChargerActionType {
   _id: ChargerType["_id"];
 }
 
-export interface BanChargerType {
+export interface BanChargerActionType {
   _id: ChargerType["_id"];
   banned?: ChargerType["banned"];
 }

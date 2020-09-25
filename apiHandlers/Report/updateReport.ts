@@ -1,13 +1,16 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { updateReport } from "../../mongodb/actions/Report";
+import { verifyTokenSecure } from "../../mongodb/actions/User";
 
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
-  updateReport(req.body)
-    .then((payload) =>
-      res.status(200).json({
-        success: true,
-        payload,
-      })
+  verifyTokenSecure(req.query.token as string)
+    .then((user) =>
+      updateReport(user, req.body).then((payload) =>
+        res.status(200).json({
+          success: true,
+          payload,
+        })
+      )
     )
     .catch((error) =>
       res.status(500).json({

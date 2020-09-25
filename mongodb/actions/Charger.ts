@@ -3,15 +3,17 @@ import initDB from "../index";
 import Charger from "../models/Charger";
 import {
   ChargerType,
-  NewChargerType,
-  GetChargerType,
-  UpdateChargerType,
-  DeleteChargerType,
-  BanChargerType,
+  NewChargerActionType,
+  GetChargerActionType,
+  UpdateChargerActionType,
+  DeleteChargerActionType,
+  BanChargerActionType,
 } from "../../types/Charger";
+import { SafeUserType } from "../../types/User";
 
 export const createCharger = async (
-  charger: NewChargerType
+  user: SafeUserType,
+  charger: NewChargerActionType
 ): Promise<ChargerType> => {
   Object.values(charger).forEach((value) => {
     if (value == null) {
@@ -19,9 +21,18 @@ export const createCharger = async (
     }
   });
 
+  if (user == null) {
+    throw new Error("User must be provided!");
+  }
+
   await initDB();
 
-  const newCharger = new Charger(charger);
+  const chargerFields = {
+    ...charger,
+    owner: user._id,
+  };
+
+  const newCharger = new Charger(chargerFields);
 
   await newCharger.validate();
   await newCharger.save();
@@ -29,16 +40,24 @@ export const createCharger = async (
   return newCharger.toObject();
 };
 
-export const getCharger = async ({
-  _id,
-}: GetChargerType): Promise<ChargerType> => {
+export const getCharger = async (
+  user: SafeUserType,
+  { _id }: GetChargerActionType
+): Promise<ChargerType> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   }
 
   await initDB();
 
-  const charger = (await Charger.findById(_id).lean()) as ChargerType;
+  const chargerQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const charger = (await Charger.findOne(chargerQuery).lean()) as ChargerType;
   if (charger == null) {
     throw new Error("Charger does not exist!");
   }
@@ -46,18 +65,25 @@ export const getCharger = async ({
   return charger;
 };
 
-export const updateCharger = async ({
-  _id,
-  ...updateFields
-}: UpdateChargerType): Promise<ChargerType> => {
+export const updateCharger = async (
+  user: SafeUserType,
+  { _id, ...updateFields }: UpdateChargerActionType
+): Promise<ChargerType> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   }
 
   await initDB();
 
-  const newCharger = (await Charger.findByIdAndUpdate(
-    _id,
+  const chargerQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const newCharger = (await Charger.findOneAndUpdate(
+    chargerQuery,
     { $set: updateFields },
     {
       new: true,
@@ -72,9 +98,10 @@ export const updateCharger = async ({
   return newCharger;
 };
 
-export const deleteCharger = async ({
-  _id,
-}: DeleteChargerType): Promise<ChargerType> => {
+export const deleteCharger = async (
+  user: SafeUserType,
+  { _id }: DeleteChargerActionType
+): Promise<ChargerType> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   }
@@ -84,6 +111,9 @@ export const deleteCharger = async ({
   const deletedCharger = await Charger.findOneAndDelete({
     _id: Types.ObjectId(_id),
     banned: false,
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
   });
 
   if (deletedCharger == null) {
@@ -93,12 +123,14 @@ export const deleteCharger = async ({
   return deletedCharger.toObject();
 };
 
-export const banCharger = async ({
-  _id,
-  banned = true,
-}: BanChargerType): Promise<ChargerType> => {
+export const banCharger = async (
+  user: SafeUserType,
+  { _id, banned = true }: BanChargerActionType
+): Promise<ChargerType> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
+  } else if (user.role !== "Admin") {
+    throw new Error("Only admins can ban chargers!");
   }
 
   await initDB();

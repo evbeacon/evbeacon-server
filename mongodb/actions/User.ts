@@ -6,11 +6,11 @@ import {
   UserType,
   SafeUserType,
   UserJWTType,
-  NewUserType,
-  LoginUserType,
-  GetUserType,
-  UpdateUserType,
-  BanUserType,
+  NewUserActionType,
+  LoginUserActionType,
+  GetUserActionType,
+  UpdateUserActionType,
+  BanUserActionType,
 } from "../../types/User";
 
 export const generateJWT = (user: UserType): string =>
@@ -29,7 +29,7 @@ export const generateJWT = (user: UserType): string =>
 export const login = async ({
   email,
   password,
-}: LoginUserType): Promise<string> => {
+}: LoginUserActionType): Promise<string> => {
   if (email == null || password == null) {
     throw new Error("All parameters must be provided!");
   }
@@ -53,7 +53,7 @@ export const signUp = async ({
   email,
   password,
   name,
-}: NewUserType): Promise<string> => {
+}: NewUserActionType): Promise<string> => {
   if (email == null || password == null || name == null) {
     throw new Error("All parameters must be provided!");
   }
@@ -110,7 +110,7 @@ export const verifyTokenSecure = async (
 export const getUser = async ({
   token,
   _id,
-}: GetUserType): Promise<SafeUserType> => {
+}: GetUserActionType): Promise<SafeUserType> => {
   if (token == null && _id == null) {
     throw new Error("Token or UserID must be provided!");
   }
@@ -131,12 +131,14 @@ export const getUser = async ({
   return rest;
 };
 
-export const updateUser = async ({
-  _id,
-  ...updateFields
-}: UpdateUserType): Promise<SafeUserType> => {
+export const updateUser = async (
+  user: SafeUserType,
+  { _id, ...updateFields }: UpdateUserActionType
+): Promise<SafeUserType> => {
   if (_id == null) {
     throw new Error("UserID must be provided!");
+  } else if (user.role !== "Admin" && user._id.toString() !== _id) {
+    throw new Error("Only the user can edit their own profile!");
   }
 
   await initDB();
@@ -159,12 +161,14 @@ export const updateUser = async ({
   return rest;
 };
 
-export const banUser = async ({
-  _id,
-  banned = true,
-}: BanUserType): Promise<SafeUserType> => {
+export const banUser = async (
+  user: SafeUserType,
+  { _id, banned = true }: BanUserActionType
+): Promise<SafeUserType> => {
   if (_id == null) {
     throw new Error("UserID must be provided!");
+  } else if (user.role !== "Admin") {
+    throw new Error("Only admins can ban users!");
   }
 
   await initDB();

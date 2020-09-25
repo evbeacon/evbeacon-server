@@ -11,7 +11,7 @@ import { signUp, getUser } from "./User";
 import { createCharger } from "./Charger";
 import { createVehicle } from "./Vehicle";
 import Charger from "../models/Charger";
-import { NewBeaconType } from "../../types/Beacon";
+import { NewBeaconActionType } from "../../types/Beacon";
 import { VehicleType } from "../../types/Vehicle";
 import { SafeUserType } from "../../types/User";
 
@@ -83,7 +83,7 @@ const mockCharger = {
 describe("Beacon", () => {
   let owner: SafeUserType;
   let vehicle: VehicleType;
-  let mockBeacon: NewBeaconType;
+  let mockBeacon: NewBeaconActionType;
   beforeAll(async () => {
     const token = await signUp({
       email: "hello@hello.com",

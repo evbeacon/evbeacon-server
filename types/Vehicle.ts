@@ -12,8 +12,7 @@ export interface VehicleType extends MongooseDocument {
   banned: boolean;
 }
 
-export interface NewVehicleType {
-  owner: VehicleType["owner"];
+export interface NewVehicleActionType {
   year: VehicleType["year"];
   make: VehicleType["make"];
   model: VehicleType["model"];
@@ -22,11 +21,11 @@ export interface NewVehicleType {
   licensePlate: VehicleType["licensePlate"];
 }
 
-export interface GetVehicleType {
+export interface GetVehicleActionType {
   _id: VehicleType["_id"];
 }
 
-export interface UpdateVehicleType {
+export interface UpdateVehicleActionType {
   _id: VehicleType["_id"];
   year?: VehicleType["year"];
   make?: VehicleType["make"];
@@ -35,11 +34,11 @@ export interface UpdateVehicleType {
   plugType?: VehicleType["plugType"];
 }
 
-export interface DeleteVehicleType {
+export interface DeleteVehicleActionType {
   _id: VehicleType["_id"];
 }
 
-export interface BanVehicleType {
+export interface BanVehicleActionType {
   _id: VehicleType["_id"];
   banned?: VehicleType["banned"];
 }

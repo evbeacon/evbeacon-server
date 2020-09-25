@@ -1,14 +1,17 @@
+import { Types } from "mongoose";
 import initDB from "../index";
 import Report from "../models/Report";
 import {
   ReportType,
-  NewReportType,
-  GetReportType,
-  UpdateReportType,
+  NewReportActionType,
+  GetReportActionType,
+  UpdateReportActionType,
 } from "../../types/Report";
+import { SafeUserType } from "../../types/User";
 
 export const createReport = async (
-  report: NewReportType
+  user: SafeUserType,
+  report: NewReportActionType
 ): Promise<ReportType> => {
   Object.values(report).forEach((value) => {
     if (value == null) {
@@ -16,9 +19,18 @@ export const createReport = async (
     }
   });
 
+  if (user == null) {
+    throw new Error("User must be provided!");
+  }
+
   await initDB();
 
-  const newReport = new Report(report);
+  const reportFields = {
+    ...report,
+    madeBy: user._id,
+  };
+
+  const newReport = new Report(reportFields);
 
   await newReport.validate();
   await newReport.save();
@@ -26,16 +38,24 @@ export const createReport = async (
   return newReport.toObject();
 };
 
-export const getReport = async ({
-  _id,
-}: GetReportType): Promise<ReportType> => {
+export const getReport = async (
+  user: SafeUserType,
+  { _id }: GetReportActionType
+): Promise<ReportType> => {
   if (_id == null) {
     throw new Error("ReportID must be provided!");
   }
 
   await initDB();
 
-  const report = (await Report.findById(_id).lean()) as ReportType;
+  const reportQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const report = (await Report.findOne(reportQuery).lean()) as ReportType;
   if (report == null) {
     throw new Error("Report does not exist!");
   }
@@ -43,19 +63,27 @@ export const getReport = async ({
   return report;
 };
 
-export const updateReport = async ({
-  _id,
-  ...updateFields
-}: UpdateReportType): Promise<ReportType> => {
+export const updateReport = async (
+  user: SafeUserType,
+  { _id, ...updateFields }: UpdateReportActionType
+): Promise<ReportType> => {
   if (_id == null) {
     throw new Error("ReportID must be provided!");
+  } else if (user.role !== "Admin") {
+    throw new Error("Only admins can update reports!");
   }
 
   await initDB();
 
   const newReport = (await Report.findByIdAndUpdate(
     _id,
-    { $set: updateFields },
+    {
+      $set: {
+        ...updateFields,
+        decided: true,
+        decidedBy: user._id,
+      },
+    },
     {
       new: true,
       lean: true,

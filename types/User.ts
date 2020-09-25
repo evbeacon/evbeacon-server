@@ -28,24 +28,24 @@ export interface UserJWTType {
   role: UserType["role"];
 }
 
-export interface NewUserType {
+export interface NewUserActionType {
   email: UserType["email"];
   password: UserType["password"];
   name: UserType["name"];
   bio?: UserType["bio"];
 }
 
-export interface LoginUserType {
+export interface LoginUserActionType {
   email: UserType["email"];
   password: UserType["password"];
 }
 
-export interface GetUserType {
+export interface GetUserActionType {
   _id?: UserType["_id"];
   token?: string;
 }
 
-export interface UpdateUserType {
+export interface UpdateUserActionType {
   _id: UserType["_id"];
   name?: UserType["name"];
   bio?: UserType["bio"];
@@ -53,7 +53,7 @@ export interface UpdateUserType {
   finishedVehicle?: UserType["finishedVehicle"];
 }
 
-export interface BanUserType {
+export interface BanUserActionType {
   _id: UserType["_id"];
   banned?: UserType["banned"];
 }

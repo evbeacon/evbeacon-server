@@ -3,15 +3,17 @@ import initDB from "../index";
 import Vehicle from "../models/Vehicle";
 import {
   VehicleType,
-  NewVehicleType,
-  GetVehicleType,
-  UpdateVehicleType,
-  DeleteVehicleType,
-  BanVehicleType,
+  NewVehicleActionType,
+  GetVehicleActionType,
+  UpdateVehicleActionType,
+  DeleteVehicleActionType,
+  BanVehicleActionType,
 } from "../../types/Vehicle";
+import { SafeUserType } from "../../types/User";
 
 export const createVehicle = async (
-  vehicle: NewVehicleType
+  user: SafeUserType,
+  vehicle: NewVehicleActionType
 ): Promise<VehicleType> => {
   Object.values(vehicle).forEach((value) => {
     if (value == null) {
@@ -19,9 +21,18 @@ export const createVehicle = async (
     }
   });
 
+  if (user == null) {
+    throw new Error("User must be provided!");
+  }
+
   await initDB();
 
-  const newVehicle = new Vehicle(vehicle);
+  const vehicleFields = {
+    ...vehicle,
+    owner: user._id,
+  };
+
+  const newVehicle = new Vehicle(vehicleFields);
 
   await newVehicle.validate();
   await newVehicle.save();
@@ -29,16 +40,24 @@ export const createVehicle = async (
   return newVehicle.toObject();
 };
 
-export const getVehicle = async ({
-  _id,
-}: GetVehicleType): Promise<VehicleType> => {
+export const getVehicle = async (
+  user: SafeUserType,
+  { _id }: GetVehicleActionType
+): Promise<VehicleType> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   }
 
   await initDB();
 
-  const vehicle = (await Vehicle.findById(_id).lean()) as VehicleType;
+  const vehicleQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const vehicle = (await Vehicle.findOne(vehicleQuery).lean()) as VehicleType;
   if (vehicle == null) {
     throw new Error("Vehicle does not exist!");
   }
@@ -46,18 +65,25 @@ export const getVehicle = async ({
   return vehicle;
 };
 
-export const updateVehicle = async ({
-  _id,
-  ...updateFields
-}: UpdateVehicleType): Promise<VehicleType> => {
+export const updateVehicle = async (
+  user: SafeUserType,
+  { _id, ...updateFields }: UpdateVehicleActionType
+): Promise<VehicleType> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   }
 
   await initDB();
 
-  const newVehicle = (await Vehicle.findByIdAndUpdate(
-    _id,
+  const vehicleQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const newVehicle = (await Vehicle.findOneAndUpdate(
+    vehicleQuery,
     { $set: updateFields },
     {
       new: true,
@@ -72,9 +98,10 @@ export const updateVehicle = async ({
   return newVehicle;
 };
 
-export const deleteVehicle = async ({
-  _id,
-}: DeleteVehicleType): Promise<VehicleType> => {
+export const deleteVehicle = async (
+  user: SafeUserType,
+  { _id }: DeleteVehicleActionType
+): Promise<VehicleType> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   }
@@ -84,6 +111,9 @@ export const deleteVehicle = async ({
   const deletedVehicle = await Vehicle.findOneAndDelete({
     _id: Types.ObjectId(_id),
     banned: false,
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
   });
 
   if (deletedVehicle == null) {
@@ -93,12 +123,14 @@ export const deleteVehicle = async ({
   return deletedVehicle.toObject();
 };
 
-export const banVehicle = async ({
-  _id,
-  banned = true,
-}: BanVehicleType): Promise<VehicleType> => {
+export const banVehicle = async (
+  user: SafeUserType,
+  { _id, banned = true }: BanVehicleActionType
+): Promise<VehicleType> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
+  } else if (user.role !== "Admin") {
+    throw new Error("Only admins can ban vehicles!");
   }
 
   await initDB();

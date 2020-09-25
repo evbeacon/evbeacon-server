@@ -12,21 +12,18 @@ export interface ReportType extends MongooseDocument {
   ruling?: string;
 }
 
-export interface NewReportType {
+export interface NewReportActionType {
   type: ReportType["type"];
   reported: ReportType["reported"];
-  madeBy: ReportType["madeBy"];
   reason: ReportType["reason"];
   explanation: ReportType["explanation"];
 }
 
-export interface GetReportType {
+export interface GetReportActionType {
   _id: ReportType["_id"];
 }
 
-export interface UpdateReportType {
+export interface UpdateReportActionType {
   _id: ReportType["_id"];
-  decided?: ReportType["decided"];
-  decidedBy?: ReportType["decidedBy"];
-  ruling?: ReportType["ruling"];
+  ruling: ReportType["ruling"];
 }

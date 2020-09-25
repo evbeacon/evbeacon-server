@@ -1,20 +1,23 @@
 import dayjs from "dayjs";
+import { Types } from "mongoose";
 import initDB from "../index";
 import Beacon from "../models/Beacon";
 import Charger from "../models/Charger";
 import Vehicle from "../models/Vehicle";
 import {
   BeaconType,
-  NewBeaconType,
-  GetBeaconType,
-  UpdateBeaconChargerType,
-  CancelBeaconType,
+  NewBeaconActionType,
+  GetBeaconActionType,
+  UpdateBeaconChargerActionType,
+  CancelBeaconActionType,
 } from "../../types/Beacon";
+import { SafeUserType } from "../../types/User";
 import { ChargerType } from "../../types/Charger";
 import { VehicleType } from "../../types/Vehicle";
 
 export const createBeacon = async (
-  beacon: NewBeaconType
+  user: SafeUserType,
+  beacon: NewBeaconActionType
 ): Promise<BeaconType> => {
   Object.values(beacon).forEach((value) => {
     if (value == null) {
@@ -24,7 +27,12 @@ export const createBeacon = async (
 
   await initDB();
 
-  const newBeacon = new Beacon(beacon);
+  const beaconFields = {
+    ...beacon,
+    owner: user._id,
+  };
+
+  const newBeacon = new Beacon(beaconFields);
 
   await newBeacon.validate();
   await newBeacon.save();
@@ -80,16 +88,24 @@ export const getNearbyChargers = async (
   return nearbyChargers;
 };
 
-export const getBeacon = async ({
-  _id,
-}: GetBeaconType): Promise<BeaconType> => {
+export const getBeacon = async (
+  user: SafeUserType,
+  { _id }: GetBeaconActionType
+): Promise<BeaconType> => {
   if (_id == null) {
     throw new Error("BeaconID must be provided!");
   }
 
   await initDB();
 
-  const beacon = (await Beacon.findById(_id).lean()) as BeaconType;
+  const beaconQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const beacon = (await Beacon.findOne(beaconQuery).lean()) as BeaconType;
   if (beacon == null) {
     throw new Error("Beacon does not exist!");
   }
@@ -97,10 +113,10 @@ export const getBeacon = async ({
   return beacon;
 };
 
-export const updateBeaconCharger = async ({
-  _id,
-  charger,
-}: UpdateBeaconChargerType): Promise<BeaconType> => {
+export const updateBeaconCharger = async (
+  user: SafeUserType,
+  { _id, charger }: UpdateBeaconChargerActionType
+): Promise<BeaconType> => {
   if (_id == null) {
     throw new Error("BeaconID must be provided!");
   } else if (charger == null) {
@@ -109,8 +125,15 @@ export const updateBeaconCharger = async ({
 
   await initDB();
 
-  const newBeacon = (await Beacon.findByIdAndUpdate(
-    _id,
+  const beaconQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const newBeacon = (await Beacon.findOneAndUpdate(
+    beaconQuery,
     {
       $push: {
         allowedChargers: charger,
@@ -129,17 +152,25 @@ export const updateBeaconCharger = async ({
   return newBeacon;
 };
 
-export const cancelBeacon = async ({
-  _id,
-}: CancelBeaconType): Promise<BeaconType> => {
+export const cancelBeacon = async (
+  user: SafeUserType,
+  { _id }: CancelBeaconActionType
+): Promise<BeaconType> => {
   if (_id == null) {
     throw new Error("BeaconID must be provided!");
   }
 
   await initDB();
 
-  const cancelledBeacon = (await Beacon.findByIdAndUpdate(
-    _id,
+  const beaconQuery = {
+    _id: Types.ObjectId(_id),
+    ...(user.role === "User" && {
+      owner: user._id,
+    }),
+  };
+
+  const cancelledBeacon = (await Beacon.findOneAndUpdate(
+    beaconQuery,
     {
       $set: {
         cancelled: true,
