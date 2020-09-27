@@ -1,17 +1,11 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import getUser from "../apiHandlers/User/getUser";
-import signUp from "../apiHandlers/User/signUp";
-import login from "../apiHandlers/User/login";
 import updateUser from "../apiHandlers/User/updateUser";
 import banUser from "../apiHandlers/User/banUser";
 
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) => {
   if (req.method === "GET") {
     return getUser(req, res);
-  } else if (req.method === "POST") {
-    return signUp(req, res);
-  } else if (req.method === "HEAD") {
-    return login(req, res);
   } else if (req.method === "PATCH") {
     return updateUser(req, res);
   } else if (req.method === "PUT") {

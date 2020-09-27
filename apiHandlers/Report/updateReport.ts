@@ -2,10 +2,13 @@ import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { updateReport } from "../../mongodb/actions/Report";
 import { verifyTokenSecure } from "../../mongodb/actions/User";
 
+// @route   PATCH api/report
+// @desc    Update Report
+// @access  Private
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
   verifyTokenSecure(req.query.token as string)
     .then((user) =>
-      updateReport(user, req.body).then((payload) =>
+      updateReport(user, req.body ?? {}).then((payload) =>
         res.status(200).json({
           success: true,
           payload,

@@ -2,10 +2,13 @@ import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { getCharger } from "../../mongodb/actions/Charger";
 import { verifyTokenSecure } from "../../mongodb/actions/User";
 
+// @route   GET api/charger
+// @desc    Get Charger
+// @access  Private
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
   verifyTokenSecure(req.query.token as string)
     .then((user) =>
-      getCharger(user, req.body).then((payload) =>
+      getCharger(user, req.query as any).then((payload) =>
         res.status(200).json({
           success: true,
           payload,

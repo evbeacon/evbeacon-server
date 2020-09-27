@@ -1,8 +1,11 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { signUp } from "../../mongodb/actions/User";
 
+// @route   POST signup
+// @desc    Create User
+// @access  Public
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
-  signUp(req.body)
+  signUp(req.body ?? {})
     .then((payload) =>
       res.status(200).json({
         success: true,

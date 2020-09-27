@@ -2,10 +2,13 @@ import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { getBeacon } from "../../mongodb/actions/Beacon";
 import { verifyTokenSecure } from "../../mongodb/actions/User";
 
+// @route   GET api/beacon
+// @desc    Get Beacon
+// @access  Private
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
   verifyTokenSecure(req.query.token as string)
     .then((user) =>
-      getBeacon(user, req.body).then((payload) =>
+      getBeacon(user, req.query as any).then((payload) =>
         res.status(200).json({
           success: true,
           payload,

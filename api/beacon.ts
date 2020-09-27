@@ -11,7 +11,7 @@ const handler: NowApiHandler = (req: NowRequest, res: NowResponse) => {
     return createBeacon(req, res);
   } else if (req.method === "PATCH") {
     return updateBeaconCharger(req, res);
-  } else if (req.method === "DELETE") {
+  } else if (req.method === "PUT") {
     return cancelBeacon(req, res);
   } else {
     return res.status(400).json({
