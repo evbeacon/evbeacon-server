@@ -219,6 +219,32 @@ describe("User", () => {
     expect(updatedUser.name).toEqual(newFields.name);
   });
 
+  it("should fail update user on other users account", async () => {
+    const mockUser = {
+      email: "otheruser@example.com",
+      password: "Test123",
+      name: "Update User",
+    };
+
+    const token = await signUp(mockUser);
+    const insertedUser = await getUser({ token });
+
+    const newFields = {
+      name: "New Name",
+    };
+
+    try {
+      await updateUser(insertedUser, {
+        _id: admin._id,
+        ...newFields,
+      });
+    } catch (error) {
+      expect(error.message).toEqual(
+        "Only the user can edit their own profile!"
+      );
+    }
+  });
+
   it("should fail getUser on missing token", async () => {
     try {
       await getUser({ token: null } as any);
@@ -258,6 +284,23 @@ describe("User", () => {
     expect(bannedUser).not.toBeNull();
     expect(bannedUser._id.toString()).toEqual(insertedUser._id.toString());
     expect(bannedUser.banned).toEqual(true);
+  });
+
+  it("should fail ban user from nonadmin", async () => {
+    const mockUser = {
+      email: "regular@example.com",
+      password: "Test123",
+      name: "Update User",
+    };
+
+    const token = await signUp(mockUser);
+    const insertedUser = await getUser({ token });
+
+    try {
+      await banUser(insertedUser, { _id: insertedUser._id });
+    } catch (error) {
+      expect(error.message).toEqual("Only admins can ban users!");
+    }
   });
 
   it("should fail banUser on missing userId", async () => {

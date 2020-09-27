@@ -103,6 +103,31 @@ describe("Report", () => {
     expect(updatedReport.ruling).toEqual(updateFields.ruling);
   });
 
+  it("should fail updateReport on nonadmin", async () => {
+    const insertedReport = await createReport(admin, mockReport);
+
+    expect(insertedReport).not.toBeNull();
+    expect(insertedReport.reported.toString()).toEqual(mockReport.reported);
+    expect(insertedReport.reason).toEqual(mockReport.reason);
+
+    const updateFields = {
+      _id: insertedReport._id,
+      ruling: "Some ruling",
+    };
+
+    try {
+      await updateReport(
+        {
+          ...admin,
+          role: "User",
+        },
+        updateFields
+      );
+    } catch (error) {
+      expect(error.message).toEqual("Only admins can update reports!");
+    }
+  });
+
   it("should fail updateReport on missing reportId", async () => {
     try {
       await updateReport(admin, { _id: null, ruling: "" });

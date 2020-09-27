@@ -206,6 +206,35 @@ describe("Vehicle", () => {
     expect(bannedVehicle.banned).toEqual(true);
   });
 
+  it("should fail banVehicle on nonadmin", async () => {
+    const mockVehicle = {
+      year: 2020,
+      make: "Tesla",
+      model: "3",
+      color: "Grey",
+      plugType: "Tesla",
+      licensePlate: "7f",
+    };
+
+    const insertedVehicle = await createVehicle(admin, mockVehicle);
+
+    expect(insertedVehicle).not.toBeNull();
+    expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
+    expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
+
+    try {
+      await banVehicle(
+        {
+          ...admin,
+          role: "User",
+        },
+        { _id: insertedVehicle._id }
+      );
+    } catch (error) {
+      expect(error.message).toEqual("Only admins can ban vehicles!");
+    }
+  });
+
   it("should fail banVehicle on missing vehicleId", async () => {
     try {
       await banVehicle(admin, { _id: null });

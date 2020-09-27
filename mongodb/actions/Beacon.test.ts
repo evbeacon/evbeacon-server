@@ -43,7 +43,9 @@ const generateChargerWithinRange = (
   const foundLongitude: number = new_x + longitude;
   const foundLatitude: number = y + latitude;
 
-  prevDuringDay = !prevDuringDay;
+  if (offHours != null) {
+    prevDuringDay = !prevDuringDay;
+  }
 
   return createCharger(user, {
     location: {
@@ -56,7 +58,7 @@ const generateChargerWithinRange = (
       country: "United States of America",
     },
     plugType: "Tesla",
-    ...(offHours != null && {
+    ...(offHours === true && {
       offHoursStartUTC: prevDuringDay
         ? dayjs().add(2, "h").hour()
         : dayjs().subtract(2, "h").hour(),
@@ -64,7 +66,7 @@ const generateChargerWithinRange = (
         ? dayjs().subtract(4, "h").hour()
         : dayjs().add(4, "h").hour(),
     }),
-    ...(disabled != null && {
+    ...(disabled === true && {
       disabledUntil: dayjs().add(7, "d").toDate(),
     }),
   });
@@ -251,7 +253,7 @@ describe("Beacon", () => {
 
     // Generate chargers that are off hours
     await Promise.all(
-      [1, 2, 3].map(() =>
+      [1, 2, 3, 4].map(() =>
         generateChargerWithinRange(admin, {
           coordinates: insertedBeacon.location.coordinates,
           rangeMeters: insertedBeacon.vehicleRange,
@@ -262,7 +264,7 @@ describe("Beacon", () => {
 
     // Generate chargers that are disabled
     await Promise.all(
-      [1, 2, 3].map(() =>
+      [1, 2, 3, 4].map(() =>
         generateChargerWithinRange(admin, {
           coordinates: insertedBeacon.location.coordinates,
           rangeMeters: insertedBeacon.vehicleRange,

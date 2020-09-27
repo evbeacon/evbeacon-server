@@ -21,10 +21,6 @@ export const createVehicle = async (
     }
   });
 
-  if (user == null) {
-    throw new Error("User must be provided!");
-  }
-
   await initDB();
 
   const vehicleFields = {

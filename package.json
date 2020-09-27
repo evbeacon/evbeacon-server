@@ -32,8 +32,8 @@
     "deploy": "vercel",
     "format": "prettier --write **/*.{ts,json}",
     "lint": "eslint --fix --ext ts .",
-    "test": "jest",
-    "test-coverage": "jest --coverage"
+    "test": "jest --runInBand",
+    "test-coverage": "jest --runInBand --coverage"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

@@ -154,7 +154,7 @@ describe("Charger", () => {
     }
   });
 
-  it("should fail banCharger on missing charger", async () => {
+  it("should fail deleteCharger on missing charger", async () => {
     try {
       await deleteCharger(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
@@ -174,6 +174,26 @@ describe("Charger", () => {
     expect(bannedCharger).not.toBeNull();
     expect(bannedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(bannedCharger.banned).toEqual(true);
+  });
+
+  it("should fail banCharger on nonadmin", async () => {
+    const insertedCharger = await createCharger(admin, mockCharger);
+
+    expect(insertedCharger).not.toBeNull();
+    expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
+    expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
+
+    try {
+      await banCharger(
+        {
+          ...admin,
+          role: "User",
+        },
+        { _id: insertedCharger._id }
+      );
+    } catch (error) {
+      expect(error.message).toEqual("Only admins can ban chargers!");
+    }
   });
 
   it("should fail banCharger on missing chargerId", async () => {

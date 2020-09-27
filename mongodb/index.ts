@@ -7,7 +7,7 @@ dayjs.extend(utcTime);
 const isTesting = process.env.NODE_ENV === "test";
 
 export default async (): Promise<void> => {
-  if (mongoose.connections[0].readyState) return;
+  if (!isTesting && mongoose.connections[0].readyState) return;
 
   await mongoose
     .connect(
