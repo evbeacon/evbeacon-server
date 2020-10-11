@@ -29,14 +29,17 @@ export const generateJWT = (user: UserType): string =>
 export const login = async ({
   email,
   password,
-}: LoginUserActionType): Promise<string> => {
+}: LoginUserActionType): Promise<{
+  token: string;
+  user: SafeUserType;
+}> => {
   if (email == null || password == null) {
     throw new Error("All parameters must be provided!");
   }
 
   await initDB();
 
-  const user = await User.findOne({ email });
+  const user = (await User.findOne({ email }).lean()) as UserType;
   if (user == null) {
     throw new Error("User not found!");
   }
@@ -46,14 +49,23 @@ export const login = async ({
     throw new Error("The password you entered is incorrect!");
   }
 
-  return generateJWT(user);
+  const { password: _, ...safeUser } = user;
+  const token = generateJWT(user);
+
+  return {
+    token,
+    user: safeUser,
+  };
 };
 
 export const signUp = async ({
   email,
   password,
   name,
-}: NewUserActionType): Promise<string> => {
+}: NewUserActionType): Promise<{
+  token: string;
+  user: SafeUserType;
+}> => {
   if (email == null || password == null || name == null) {
     throw new Error("All parameters must be provided!");
   }
@@ -71,7 +83,13 @@ export const signUp = async ({
   await user.validate();
   await user.save();
 
-  return generateJWT(user);
+  const { password: _, ...safeUser } = user;
+  const token = generateJWT(user);
+
+  return {
+    token,
+    user: safeUser,
+  };
 };
 
 export const verifyToken = async (token: string): Promise<UserJWTType> => {
