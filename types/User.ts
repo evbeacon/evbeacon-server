@@ -43,6 +43,8 @@ export interface LoginUserActionType {
 export interface GetUserActionType {
   _id?: UserType["_id"];
   token?: string;
+  withChargers?: boolean;
+  withVehicles?: boolean;
 }
 
 export interface UpdateUserActionType {

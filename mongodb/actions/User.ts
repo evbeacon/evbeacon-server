@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import initDB from "../index";
 import User from "../models/User";
+import Charger from "../models/Charger";
+import Vehicle from "../models/Vehicle";
 import {
   UserType,
   SafeUserType,
@@ -12,6 +14,9 @@ import {
   UpdateUserActionType,
   BanUserActionType,
 } from "../../types/User";
+import { ChargerType } from "../../types/Charger";
+import { VehicleType } from "../../types/Vehicle";
+import { Types } from "mongoose";
 
 export const generateJWT = (user: UserType): string =>
   jwt.sign(
@@ -128,25 +133,57 @@ export const verifyTokenSecure = async (
 export const getUser = async ({
   token,
   _id,
-}: GetUserActionType): Promise<SafeUserType> => {
+  withChargers = false,
+  withVehicles = false,
+}: GetUserActionType): Promise<
+  {
+    chargers?: ChargerType[];
+    vehicles?: VehicleType[];
+  } & SafeUserType
+> => {
   if (token == null && _id == null) {
     throw new Error("Token or UserID must be provided!");
   }
 
+  let safeUser: SafeUserType;
+
   if (token != null) {
-    return verifyTokenSecure(token);
+    safeUser = await verifyTokenSecure(token);
+  } else {
+    await initDB();
+
+    const user = (await User.findById(_id).lean()) as UserType;
+    if (user == null) {
+      throw new Error("User does not exist!");
+    }
+
+    const { password, ...rest } = user;
+    safeUser = rest;
   }
 
-  await initDB();
-
-  const user = (await User.findById(_id).lean()) as UserType;
-  if (user == null) {
-    throw new Error("User does not exist!");
+  let chargers = null;
+  if (withChargers) {
+    chargers = (await Charger.find({
+      owner: Types.ObjectId(safeUser._id),
+    }).lean()) as ChargerType[];
   }
 
-  const { password, ...rest } = user;
+  let vehicles = null;
+  if (withVehicles) {
+    vehicles = (await Vehicle.find({
+      owner: Types.ObjectId(safeUser._id),
+    }).lean()) as VehicleType[];
+  }
 
-  return rest;
+  return {
+    ...safeUser,
+    ...(chargers != null && {
+      chargers,
+    }),
+    ...(vehicles != null && {
+      vehicles,
+    }),
+  };
 };
 
 export const updateUser = async (
