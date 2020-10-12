@@ -24,7 +24,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run deploy"
+      "pre-push": "npm run deploy-prod"
     }
   },
   "scripts": {

@@ -13,7 +13,7 @@ import User from "../models/User";
 describe("Vehicle", () => {
   let admin: SafeUserType;
   beforeAll(async () => {
-    const token = await signUp({
+    const { token } = await signUp({
       email: "vehicle@hello.com",
       password: "somePass",
       name: "My Name",

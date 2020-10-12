@@ -78,7 +78,7 @@ describe("Beacon", () => {
   let mockBeacon: NewBeaconActionType;
   let mockCharger: NewChargerActionType;
   beforeAll(async () => {
-    const token = await signUp({
+    const { token } = await signUp({
       email: "beacon@hello.com",
       password: "somePass",
       name: "My Name",

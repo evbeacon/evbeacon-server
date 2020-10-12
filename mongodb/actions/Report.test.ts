@@ -9,7 +9,7 @@ describe("Report", () => {
   let admin: SafeUserType;
   let mockReport: NewReportActionType;
   beforeAll(async () => {
-    const token = await signUp({
+    const { token } = await signUp({
       email: "report@hello.com",
       password: "somePass",
       name: "My Name",

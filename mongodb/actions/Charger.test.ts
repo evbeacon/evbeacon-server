@@ -15,7 +15,7 @@ describe("Charger", () => {
   let admin: SafeUserType;
   let mockCharger: NewChargerActionType;
   beforeAll(async () => {
-    const token = await signUp({
+    const { token } = await signUp({
       email: "charger@hello.com",
       password: "somePass",
       name: "My Name",

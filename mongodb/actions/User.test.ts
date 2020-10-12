@@ -15,7 +15,7 @@ import User from "../models/User";
 describe("User", () => {
   let admin: SafeUserType;
   beforeAll(async () => {
-    const token = await signUp({
+    const { token } = await signUp({
       email: "user@hello.com",
       password: "somePass",
       name: "My Name",
@@ -47,7 +47,7 @@ describe("User", () => {
       name: "Test User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
 
     const insertedUser = await getUser({ token });
 
@@ -63,7 +63,7 @@ describe("User", () => {
       name: "Test User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
     const decodedUser = await verifyToken(token);
 
     const gotUser = await getUser({ _id: decodedUser._id });
@@ -138,7 +138,7 @@ describe("User", () => {
       name: "Jwt User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
 
     const insertedUser = await getUser({ token });
 
@@ -161,14 +161,14 @@ describe("User", () => {
       name: "Jwt User",
     };
 
-    const signUpToken = await signUp(mockUser);
+    const { token: signUpToken } = await signUp(mockUser);
     const insertedUser = await getUser({ token: signUpToken });
 
     expect(insertedUser).not.toBeNull();
     expect(insertedUser.email).toEqual(mockUser.email);
     expect(insertedUser.name).toEqual(mockUser.name);
 
-    const loginToken = await login(mockUser);
+    const { token: loginToken } = await login(mockUser);
     expect(loginToken).not.toBeNull();
 
     const decodedSignUp = await verifyToken(signUpToken);
@@ -183,7 +183,7 @@ describe("User", () => {
       name: "Jwt Full User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
 
     const insertedUser = await getUser({ token });
 
@@ -203,7 +203,7 @@ describe("User", () => {
       name: "Update User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
     const insertedUser = await getUser({ token });
 
     const newFields = {
@@ -226,7 +226,7 @@ describe("User", () => {
       name: "Update User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
     const insertedUser = await getUser({ token });
 
     const newFields = {
@@ -276,7 +276,7 @@ describe("User", () => {
       name: "Update User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
     const insertedUser = await getUser({ token });
 
     const bannedUser = await banUser(admin, { _id: insertedUser._id });
@@ -293,7 +293,7 @@ describe("User", () => {
       name: "Update User",
     };
 
-    const token = await signUp(mockUser);
+    const { token } = await signUp(mockUser);
     const insertedUser = await getUser({ token });
 
     try {

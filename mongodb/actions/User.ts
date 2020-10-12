@@ -36,7 +36,10 @@ export const login = async ({
   password,
 }: LoginUserActionType): Promise<{
   token: string;
-  user: SafeUserType;
+  user: {
+    chargers?: ChargerType[];
+    vehicles?: VehicleType[];
+  } & SafeUserType;
 }> => {
   if (email == null || password == null) {
     throw new Error("All parameters must be provided!");
@@ -57,9 +60,21 @@ export const login = async ({
   const { password: _, ...safeUser } = user;
   const token = generateJWT(user);
 
+  const chargers = (await Charger.find({
+    owner: Types.ObjectId(safeUser._id),
+  }).lean()) as ChargerType[];
+
+  const vehicles = (await Vehicle.find({
+    owner: Types.ObjectId(safeUser._id),
+  }).lean()) as VehicleType[];
+
   return {
     token,
-    user: safeUser,
+    user: {
+      ...safeUser,
+      chargers,
+      vehicles,
+    },
   };
 };
 
@@ -69,7 +84,10 @@ export const signUp = async ({
   name,
 }: NewUserActionType): Promise<{
   token: string;
-  user: SafeUserType;
+  user: {
+    chargers?: ChargerType[];
+    vehicles?: VehicleType[];
+  } & SafeUserType;
 }> => {
   if (email == null || password == null || name == null) {
     throw new Error("All parameters must be provided!");
@@ -93,7 +111,11 @@ export const signUp = async ({
 
   return {
     token,
-    user: safeUser,
+    user: {
+      ...safeUser,
+      chargers: [],
+      vehicles: [],
+    },
   };
 };
 
