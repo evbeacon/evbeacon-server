@@ -1,18 +1,21 @@
 import { Types } from "mongoose";
 import initDB from "../index";
 import Report from "../models/Report";
-import {
-  ReportType,
-  NewReportActionType,
-  GetReportActionType,
-  UpdateReportActionType,
-} from "../../types/Report";
-import { SafeUserType } from "../../types/User";
+import type { ReportType } from "../../types/report";
+import type {
+  CreateReportParams,
+  CreateReportResponse,
+  GetReportParams,
+  GetReportResponse,
+  UpdateReportParams,
+  UpdateReportResponse,
+} from "../../types/actions/report";
+import type { SafeUserType } from "../../types/user";
 
 export const createReport = async (
   user: SafeUserType,
-  report: NewReportActionType
-): Promise<ReportType> => {
+  report: CreateReportParams
+): Promise<CreateReportResponse> => {
   Object.values(report).forEach((value) => {
     if (value == null) {
       throw new Error("All parameters must be provided!");
@@ -36,8 +39,8 @@ export const createReport = async (
 
 export const getReport = async (
   user: SafeUserType,
-  { _id }: GetReportActionType
-): Promise<ReportType> => {
+  { _id }: GetReportParams
+): Promise<GetReportResponse> => {
   if (_id == null) {
     throw new Error("ReportID must be provided!");
   }
@@ -61,8 +64,8 @@ export const getReport = async (
 
 export const updateReport = async (
   user: SafeUserType,
-  { _id, ...updateFields }: UpdateReportActionType
-): Promise<ReportType> => {
+  { _id, ...updateFields }: UpdateReportParams
+): Promise<UpdateReportResponse> => {
   if (_id == null) {
     throw new Error("ReportID must be provided!");
   } else if (user.role !== "Admin") {

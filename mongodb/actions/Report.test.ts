@@ -1,24 +1,22 @@
 import mongoose from "mongoose";
-import { createReport, getReport, updateReport } from "./Report";
-import { SafeUserType } from "../../types/User";
-import { getUser, signUp } from "./User";
-import { NewReportActionType } from "../../types/Report";
 import User from "../models/User";
+import { createReport, getReport, updateReport } from "./Report";
+import { signUp } from "./Auth";
+import type { SafeUserType } from "../../types/user";
+import type { CreateReportParams } from "../../types/actions/report";
 
 describe("Report", () => {
   let admin: SafeUserType;
-  let mockReport: NewReportActionType;
+  let mockReport: CreateReportParams;
   beforeAll(async () => {
-    const { token } = await signUp({
+    const { user } = await signUp({
       email: "report@hello.com",
       password: "somePass",
       name: "My Name",
     });
 
-    admin = await getUser({ token });
-
     admin = await User.findByIdAndUpdate(
-      admin._id,
+      user._id,
       {
         $set: {
           role: "Admin",
@@ -70,7 +68,7 @@ describe("Report", () => {
 
   it("should fail getReport on missing reportId", async () => {
     try {
-      await getReport(admin, { _id: null });
+      await getReport(admin, { _id: null as any });
     } catch (error) {
       expect(error.message).toEqual("ReportID must be provided!");
     }
@@ -130,7 +128,7 @@ describe("Report", () => {
 
   it("should fail updateReport on missing reportId", async () => {
     try {
-      await updateReport(admin, { _id: null, ruling: "" });
+      await updateReport(admin, { _id: null as any, ruling: "" });
     } catch (error) {
       expect(error.message).toEqual("ReportID must be provided!");
     }

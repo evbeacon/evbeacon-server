@@ -1,4 +1,4 @@
-export interface LocationType {
+export type LocationType = {
   type?: "Point";
   coordinates: number[];
-}
+};

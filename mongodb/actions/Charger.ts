@@ -1,20 +1,25 @@
 import { Types } from "mongoose";
 import initDB from "../index";
 import Charger from "../models/Charger";
-import {
-  ChargerType,
-  NewChargerActionType,
-  GetChargerActionType,
-  UpdateChargerActionType,
-  DeleteChargerActionType,
-  BanChargerActionType,
-} from "../../types/Charger";
-import { SafeUserType } from "../../types/User";
+import type { ChargerType } from "../../types/charger";
+import type {
+  CreateChargerParams,
+  GetChargerParams,
+  UpdateChargerParams,
+  DeleteChargerParams,
+  BanChargerParams,
+  CreateChargerResponse,
+  GetChargerResponse,
+  UpdateChargerResponse,
+  DeleteChargerResponse,
+  BanChargerResponse,
+} from "../../types/actions/charger";
+import type { SafeUserType } from "../../types/user";
 
 export const createCharger = async (
   user: SafeUserType,
-  charger: NewChargerActionType
-): Promise<ChargerType> => {
+  charger: CreateChargerParams
+): Promise<CreateChargerResponse> => {
   Object.values(charger).forEach((value) => {
     if (value == null) {
       throw new Error("All parameters must be provided!");
@@ -38,8 +43,8 @@ export const createCharger = async (
 
 export const getCharger = async (
   user: SafeUserType,
-  { _id }: GetChargerActionType
-): Promise<ChargerType> => {
+  { _id }: GetChargerParams
+): Promise<GetChargerResponse> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   }
@@ -63,8 +68,8 @@ export const getCharger = async (
 
 export const updateCharger = async (
   user: SafeUserType,
-  { _id, ...updateFields }: UpdateChargerActionType
-): Promise<ChargerType> => {
+  { _id, ...updateFields }: UpdateChargerParams
+): Promise<UpdateChargerResponse> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   }
@@ -96,8 +101,8 @@ export const updateCharger = async (
 
 export const deleteCharger = async (
   user: SafeUserType,
-  { _id }: DeleteChargerActionType
-): Promise<ChargerType> => {
+  { _id }: DeleteChargerParams
+): Promise<DeleteChargerResponse> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   }
@@ -121,8 +126,8 @@ export const deleteCharger = async (
 
 export const banCharger = async (
   user: SafeUserType,
-  { _id, banned = true }: BanChargerActionType
-): Promise<ChargerType> => {
+  { _id, banned = true }: BanChargerParams
+): Promise<BanChargerResponse> => {
   if (_id == null) {
     throw new Error("ChargerID must be provided!");
   } else if (user.role !== "Admin") {
@@ -147,6 +152,4 @@ export const banCharger = async (
   if (bannedCharger == null) {
     throw new Error("Charger does not exist!");
   }
-
-  return bannedCharger;
 };

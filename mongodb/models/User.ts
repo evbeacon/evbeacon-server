@@ -27,6 +27,7 @@ const UserSchema = new mongoose.Schema(
     },
     bio: {
       type: String,
+      default: "",
       trim: true,
     },
     finishedCharger: {

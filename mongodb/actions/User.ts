@@ -1,176 +1,26 @@
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import initDB from "../index";
 import User from "../models/User";
-import Charger from "../models/Charger";
-import Vehicle from "../models/Vehicle";
-import {
-  UserType,
-  SafeUserType,
-  UserJWTType,
-  NewUserActionType,
-  LoginUserActionType,
-  GetUserActionType,
-  UpdateUserActionType,
-  BanUserActionType,
-} from "../../types/User";
-import { ChargerType } from "../../types/Charger";
-import { VehicleType } from "../../types/Vehicle";
-import { Types } from "mongoose";
-
-export const generateJWT = (user: UserType): string =>
-  jwt.sign(
-    {
-      _id: user._id,
-      email: user.email,
-      role: user.role,
-    },
-    process.env.JWT_SECRET as string,
-    {
-      expiresIn: "28d",
-    }
-  );
-
-export const login = async ({
-  email,
-  password,
-}: LoginUserActionType): Promise<{
-  token: string;
-  user: {
-    chargers?: ChargerType[];
-    vehicles?: VehicleType[];
-  } & SafeUserType;
-}> => {
-  if (email == null || password == null) {
-    throw new Error("All parameters must be provided!");
-  }
-
-  await initDB();
-
-  const user = (await User.findOne({ email }).lean()) as UserType;
-  if (user == null) {
-    throw new Error("User not found!");
-  }
-
-  const passwordMatches = await bcrypt.compare(password, user.password);
-  if (!passwordMatches) {
-    throw new Error("The password you entered is incorrect!");
-  }
-
-  const { password: _, ...safeUser } = user;
-  const token = generateJWT(user);
-
-  const chargers = (await Charger.find({
-    owner: Types.ObjectId(safeUser._id),
-  }).lean()) as ChargerType[];
-
-  const vehicles = (await Vehicle.find({
-    owner: Types.ObjectId(safeUser._id),
-  }).lean()) as VehicleType[];
-
-  return {
-    token,
-    user: {
-      ...safeUser,
-      chargers,
-      vehicles,
-    },
-  };
-};
-
-export const signUp = async ({
-  email,
-  password,
-  name,
-}: NewUserActionType): Promise<{
-  token: string;
-  user: {
-    chargers?: ChargerType[];
-    vehicles?: VehicleType[];
-  } & SafeUserType;
-}> => {
-  if (email == null || password == null || name == null) {
-    throw new Error("All parameters must be provided!");
-  }
-
-  await initDB();
-
-  const hashedPassword = bcrypt.hashSync(password, 10);
-
-  const user = new User({
-    email,
-    password: hashedPassword,
-    name,
-  });
-
-  await user.validate();
-  await user.save();
-
-  const { password: _, ...safeUser } = user;
-  const token = generateJWT(user);
-
-  return {
-    token,
-    user: {
-      ...safeUser,
-      chargers: [],
-      vehicles: [],
-    },
-  };
-};
-
-export const verifyToken = async (token: string): Promise<UserJWTType> => {
-  if (token == null || token.length === 0) {
-    throw new Error("User is not signed in!");
-  }
-
-  return jwt.verify(token, process.env.JWT_SECRET as string) as UserJWTType;
-};
-
-export const verifyTokenSecure = async (
-  token: string
-): Promise<SafeUserType> => {
-  if (token == null || token.length === 0) {
-    throw new Error("User is not signed in!");
-  }
-
-  const { _id } = jwt.verify(
-    token,
-    process.env.JWT_SECRET as string
-  ) as UserJWTType;
-
-  await initDB();
-
-  const user = (await User.findById(_id).lean()) as UserType;
-
-  if (user == null) {
-    throw new Error("User does not exist!");
-  }
-
-  const { password, ...rest } = user;
-
-  return rest;
-};
+import { verifyTokenSecure } from "../utils/Auth";
+import type { UserType, SafeUserType } from "../../types/user";
+import type {
+  GetUserParams,
+  UpdateUserParams,
+  BanUserParams,
+  GetUserResponse,
+  UpdateUserResponse,
+  BanUserResponse,
+} from "../../types/actions/user";
 
 export const getUser = async ({
   token,
   _id,
-  withChargers = false,
-  withVehicles = false,
-}: GetUserActionType): Promise<
-  {
-    chargers?: ChargerType[];
-    vehicles?: VehicleType[];
-  } & SafeUserType
-> => {
+}: GetUserParams): Promise<GetUserResponse> => {
   if (token == null && _id == null) {
     throw new Error("Token or UserID must be provided!");
   }
 
-  let safeUser: SafeUserType;
-
   if (token != null) {
-    safeUser = await verifyTokenSecure(token);
+    return verifyTokenSecure(token);
   } else {
     await initDB();
 
@@ -179,39 +29,16 @@ export const getUser = async ({
       throw new Error("User does not exist!");
     }
 
-    const { password, ...rest } = user;
-    safeUser = rest;
-  }
+    const { password, ...safeUser } = user;
 
-  let chargers = null;
-  if (withChargers) {
-    chargers = (await Charger.find({
-      owner: Types.ObjectId(safeUser._id),
-    }).lean()) as ChargerType[];
+    return safeUser;
   }
-
-  let vehicles = null;
-  if (withVehicles) {
-    vehicles = (await Vehicle.find({
-      owner: Types.ObjectId(safeUser._id),
-    }).lean()) as VehicleType[];
-  }
-
-  return {
-    ...safeUser,
-    ...(chargers != null && {
-      chargers,
-    }),
-    ...(vehicles != null && {
-      vehicles,
-    }),
-  };
 };
 
 export const updateUser = async (
   user: SafeUserType,
-  { _id, ...updateFields }: UpdateUserActionType
-): Promise<SafeUserType> => {
+  { _id, ...updateFields }: UpdateUserParams
+): Promise<UpdateUserResponse> => {
   if (_id == null) {
     throw new Error("UserID must be provided!");
   } else if (user.role !== "Admin" && user._id.toString() !== _id.toString()) {
@@ -233,15 +60,15 @@ export const updateUser = async (
     throw new Error("User does not exist!");
   }
 
-  const { password, ...rest } = newUser;
+  const { password, ...safeUser } = newUser;
 
-  return rest;
+  return safeUser;
 };
 
 export const banUser = async (
   user: SafeUserType,
-  { _id, banned = true }: BanUserActionType
-): Promise<SafeUserType> => {
+  { _id, banned = true }: BanUserParams
+): Promise<BanUserResponse> => {
   if (_id == null) {
     throw new Error("UserID must be provided!");
   } else if (user.role !== "Admin") {
@@ -266,8 +93,4 @@ export const banUser = async (
   if (bannedUser == null) {
     throw new Error("User does not exist!");
   }
-
-  const { password, ...rest } = bannedUser;
-
-  return rest;
 };

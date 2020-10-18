@@ -1,21 +1,21 @@
 import mongoose from "mongoose";
 import dayjs from "dayjs";
+import User from "../models/User";
+import Charger from "../models/Charger";
 import {
   createBeacon,
-  getNearbyChargers,
   getBeacon,
   updateBeaconCharger,
   cancelBeacon,
 } from "./Beacon";
-import { signUp, getUser } from "./User";
+import { signUp } from "./Auth";
 import { createCharger } from "./Charger";
 import { createVehicle } from "./Vehicle";
-import Charger from "../models/Charger";
-import { NewBeaconActionType } from "../../types/Beacon";
-import { VehicleType } from "../../types/Vehicle";
-import { SafeUserType } from "../../types/User";
-import { NewChargerActionType } from "../../types/Charger";
-import User from "../models/User";
+import { getNearbyChargers } from "../utils/Beacon";
+import type { CreateBeaconParams } from "../../types/actions/beacon";
+import type { VehicleType } from "../../types/vehicle";
+import type { SafeUserType } from "../../types/user";
+import type { CreateChargerParams } from "../../types/actions/charger";
 
 let prevDuringDay = false;
 const generateChargerWithinRange = (
@@ -75,19 +75,17 @@ const generateChargerWithinRange = (
 describe("Beacon", () => {
   let admin: SafeUserType;
   let vehicle: VehicleType;
-  let mockBeacon: NewBeaconActionType;
-  let mockCharger: NewChargerActionType;
+  let mockBeacon: CreateBeaconParams;
+  let mockCharger: CreateChargerParams;
   beforeAll(async () => {
-    const { token } = await signUp({
+    const { user } = await signUp({
       email: "beacon@hello.com",
       password: "somePass",
       name: "My Name",
     });
 
-    admin = await getUser({ token });
-
     admin = await User.findByIdAndUpdate(
-      admin._id,
+      user._id,
       {
         $set: {
           role: "Admin",
@@ -167,7 +165,7 @@ describe("Beacon", () => {
 
   it("should fail getBeacon on missing beaconId", async () => {
     try {
-      await getBeacon(admin, { _id: null });
+      await getBeacon(admin, { _id: null as any });
     } catch (error) {
       expect(error.message).toEqual("BeaconID must be provided!");
     }
@@ -333,7 +331,7 @@ describe("Beacon", () => {
 
       await updateBeaconCharger(admin, {
         _id: insertedBeacon._id,
-        charger: null,
+        charger: null as any,
       });
     } catch (error) {
       expect(error.message).toEqual("ChargerID must be provided!");
@@ -360,18 +358,14 @@ describe("Beacon", () => {
     expect(insertedBeacon.owner.toString()).toEqual(admin._id.toString());
     expect(insertedBeacon.vehicleRange).toEqual(mockBeacon.vehicleRange);
 
-    const canceledBeacon = await cancelBeacon(admin, {
+    await cancelBeacon(admin, {
       _id: insertedBeacon._id,
     });
-
-    expect(canceledBeacon).not.toBeNull();
-    expect(canceledBeacon.owner.toString()).toEqual(admin._id.toString());
-    expect(canceledBeacon.cancelled).toEqual(true);
   });
 
   it("should fail cancelBeacon on missing beaconId", async () => {
     try {
-      await cancelBeacon(admin, { _id: null });
+      await cancelBeacon(admin, { _id: null as any });
     } catch (error) {
       expect(error.message).toEqual("BeaconID must be provided!");
     }

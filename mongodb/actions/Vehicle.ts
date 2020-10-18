@@ -1,20 +1,25 @@
 import { Types } from "mongoose";
 import initDB from "../index";
 import Vehicle from "../models/Vehicle";
-import {
-  VehicleType,
-  NewVehicleActionType,
-  GetVehicleActionType,
-  UpdateVehicleActionType,
-  DeleteVehicleActionType,
-  BanVehicleActionType,
-} from "../../types/Vehicle";
-import { SafeUserType } from "../../types/User";
+import type { VehicleType } from "../../types/vehicle";
+import type {
+  CreateVehicleParams,
+  GetVehicleParams,
+  UpdateVehicleParams,
+  DeleteVehicleParams,
+  BanVehicleParams,
+  CreateVehicleResponse,
+  GetVehicleResponse,
+  UpdateVehicleResponse,
+  DeleteVehicleResponse,
+  BanVehicleResponse,
+} from "../../types/actions/vehicle";
+import type { SafeUserType } from "../../types/user";
 
 export const createVehicle = async (
   user: SafeUserType,
-  vehicle: NewVehicleActionType
-): Promise<VehicleType> => {
+  vehicle: CreateVehicleParams
+): Promise<CreateVehicleResponse> => {
   Object.values(vehicle).forEach((value) => {
     if (value == null) {
       throw new Error("All parameters must be provided!");
@@ -38,8 +43,8 @@ export const createVehicle = async (
 
 export const getVehicle = async (
   user: SafeUserType,
-  { _id }: GetVehicleActionType
-): Promise<VehicleType> => {
+  { _id }: GetVehicleParams
+): Promise<GetVehicleResponse> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   }
@@ -63,8 +68,8 @@ export const getVehicle = async (
 
 export const updateVehicle = async (
   user: SafeUserType,
-  { _id, ...updateFields }: UpdateVehicleActionType
-): Promise<VehicleType> => {
+  { _id, ...updateFields }: UpdateVehicleParams
+): Promise<UpdateVehicleResponse> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   }
@@ -96,8 +101,8 @@ export const updateVehicle = async (
 
 export const deleteVehicle = async (
   user: SafeUserType,
-  { _id }: DeleteVehicleActionType
-): Promise<VehicleType> => {
+  { _id }: DeleteVehicleParams
+): Promise<DeleteVehicleResponse> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   }
@@ -121,8 +126,8 @@ export const deleteVehicle = async (
 
 export const banVehicle = async (
   user: SafeUserType,
-  { _id, banned = true }: BanVehicleActionType
-): Promise<VehicleType> => {
+  { _id, banned = true }: BanVehicleParams
+): Promise<BanVehicleResponse> => {
   if (_id == null) {
     throw new Error("VehicleID must be provided!");
   } else if (user.role !== "Admin") {
@@ -147,6 +152,4 @@ export const banVehicle = async (
   if (bannedVehicle == null) {
     throw new Error("Vehicle does not exist!");
   }
-
-  return bannedVehicle;
 };

@@ -1,24 +1,23 @@
-import dayjs from "dayjs";
 import { Types } from "mongoose";
 import initDB from "../index";
 import Beacon from "../models/Beacon";
-import Charger from "../models/Charger";
-import Vehicle from "../models/Vehicle";
-import {
-  BeaconType,
-  NewBeaconActionType,
-  GetBeaconActionType,
-  UpdateBeaconChargerActionType,
-  CancelBeaconActionType,
-} from "../../types/Beacon";
-import { SafeUserType } from "../../types/User";
-import { ChargerType } from "../../types/Charger";
-import { VehicleType } from "../../types/Vehicle";
+import type { BeaconType } from "../../types/beacon";
+import type {
+  CancelBeaconParams,
+  CancelBeaconResponse,
+  CreateBeaconParams,
+  CreateBeaconResponse,
+  GetBeaconParams,
+  GetBeaconResponse,
+  UpdateBeaconParams,
+  UpdateBeaconResponse,
+} from "../../types/actions/beacon";
+import type { SafeUserType } from "../../types/user";
 
 export const createBeacon = async (
   user: SafeUserType,
-  beacon: NewBeaconActionType
-): Promise<BeaconType> => {
+  beacon: CreateBeaconParams
+): Promise<CreateBeaconResponse> => {
   Object.values(beacon).forEach((value) => {
     if (value == null) {
       throw new Error("All parameters must be provided!");
@@ -40,58 +39,10 @@ export const createBeacon = async (
   return newBeacon.toObject();
 };
 
-export const getNearbyChargers = async (
-  beacon: BeaconType
-): Promise<ChargerType[]> => {
-  const vehicle = (await Vehicle.findById(
-    beacon.vehicle
-  ).lean()) as VehicleType;
-
-  const currentDate = new Date();
-
-  const chargers = (await Charger.find({
-    banned: false,
-    plugType: vehicle.plugType,
-    $or: [
-      { disabledUntil: { $lt: currentDate } },
-      { disabledUntil: { $exists: false } },
-      { disabledUntil: null },
-    ],
-    location: {
-      $near: {
-        $maxDistance: beacon.vehicleRange,
-        $geometry: beacon.location,
-      },
-    },
-  }).lean()) as ChargerType[];
-
-  const currentHour = dayjs().utc().hour();
-
-  const nearbyChargers = chargers.filter(
-    ({ offHoursStartUTC: start, offHoursEndUTC: end }: ChargerType) => {
-      if (start != null && end != null) {
-        if (start <= end) {
-          return currentHour < start || currentHour > end;
-        } else {
-          return currentHour > end && currentHour < start;
-        }
-      }
-
-      return true;
-    }
-  );
-
-  if (nearbyChargers.length === 0) {
-    throw new Error("No nearby chargers!");
-  }
-
-  return nearbyChargers;
-};
-
 export const getBeacon = async (
   user: SafeUserType,
-  { _id }: GetBeaconActionType
-): Promise<BeaconType> => {
+  { _id }: GetBeaconParams
+): Promise<GetBeaconResponse> => {
   if (_id == null) {
     throw new Error("BeaconID must be provided!");
   }
@@ -115,8 +66,8 @@ export const getBeacon = async (
 
 export const updateBeaconCharger = async (
   user: SafeUserType,
-  { _id, charger }: UpdateBeaconChargerActionType
-): Promise<BeaconType> => {
+  { _id, charger }: UpdateBeaconParams
+): Promise<UpdateBeaconResponse> => {
   if (_id == null) {
     throw new Error("BeaconID must be provided!");
   } else if (charger == null) {
@@ -136,7 +87,7 @@ export const updateBeaconCharger = async (
     beaconQuery,
     {
       $push: {
-        allowedChargers: charger,
+        allowedChargers: charger as any,
       },
     },
     {
@@ -154,8 +105,8 @@ export const updateBeaconCharger = async (
 
 export const cancelBeacon = async (
   user: SafeUserType,
-  { _id }: CancelBeaconActionType
-): Promise<BeaconType> => {
+  { _id }: CancelBeaconParams
+): Promise<CancelBeaconResponse> => {
   if (_id == null) {
     throw new Error("BeaconID must be provided!");
   }
@@ -185,6 +136,4 @@ export const cancelBeacon = async (
   if (cancelledBeacon == null) {
     throw new Error("Beacon does not exist!");
   }
-
-  return cancelledBeacon;
 };
