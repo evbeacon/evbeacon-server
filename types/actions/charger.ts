@@ -13,10 +13,10 @@ export type CreateChargerParams = {
 export type CreateChargerResponse = ChargerType;
 
 export type GetChargerParams = {
-  _id: ChargerType["_id"];
+  _id?: ChargerType["_id"];
 };
 
-export type GetChargerResponse = ChargerType;
+export type GetChargerResponse = ChargerType[];
 
 export type UpdateChargerParams = {
   _id: ChargerType["_id"];

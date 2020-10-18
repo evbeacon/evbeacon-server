@@ -41,29 +41,27 @@ export const createVehicle = async (
   return newVehicle.toObject();
 };
 
-export const getVehicle = async (
+export const getVehicles = async (
   user: SafeUserType,
   { _id }: GetVehicleParams
 ): Promise<GetVehicleResponse> => {
-  if (_id == null) {
-    throw new Error("VehicleID must be provided!");
-  }
-
   await initDB();
 
   const vehicleQuery = {
-    _id: Types.ObjectId(_id),
+    ...(_id != null && {
+      _id: Types.ObjectId(_id),
+    }),
     ...(user.role === "User" && {
       owner: user._id,
     }),
   };
 
-  const vehicle = (await Vehicle.findOne(vehicleQuery).lean()) as VehicleType;
-  if (vehicle == null) {
+  const vehicles = (await Vehicle.find(vehicleQuery).lean()) as VehicleType[];
+  if (_id != null && (vehicles == null || vehicles.length === 0)) {
     throw new Error("Vehicle does not exist!");
   }
 
-  return vehicle;
+  return vehicles;
 };
 
 export const updateVehicle = async (

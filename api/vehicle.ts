@@ -1,5 +1,5 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
-import getVehicle from "../apiHandlers/Vehicle/getVehicle";
+import getVehicle from "../apiHandlers/Vehicle/getVehicles";
 import createVehicle from "../apiHandlers/Vehicle/createVehicle";
 import updateVehicle from "../apiHandlers/Vehicle/updateVehicle";
 import deleteVehicle from "../apiHandlers/Vehicle/deleteVehicle";

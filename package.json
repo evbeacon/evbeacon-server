@@ -30,7 +30,6 @@
   },
   "scripts": {
     "update-env": "vercel env pull",
-    "deploy": "vercel",
     "deploy-prod": "vercel --prod",
     "format": "prettier --write **/*.{ts,json}",
     "lint": "eslint --fix --ext ts .",

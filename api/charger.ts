@@ -1,5 +1,5 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
-import getCharger from "../apiHandlers/Charger/getCharger";
+import getCharger from "../apiHandlers/Charger/getChargers";
 import createCharger from "../apiHandlers/Charger/createCharger";
 import updateCharger from "../apiHandlers/Charger/updateCharger";
 import deleteCharger from "../apiHandlers/Charger/deleteCharger";

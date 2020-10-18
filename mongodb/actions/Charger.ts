@@ -41,29 +41,27 @@ export const createCharger = async (
   return newCharger.toObject();
 };
 
-export const getCharger = async (
+export const getChargers = async (
   user: SafeUserType,
   { _id }: GetChargerParams
 ): Promise<GetChargerResponse> => {
-  if (_id == null) {
-    throw new Error("ChargerID must be provided!");
-  }
-
   await initDB();
 
   const chargerQuery = {
-    _id: Types.ObjectId(_id),
+    ...(_id != null && {
+      _id: Types.ObjectId(_id),
+    }),
     ...(user.role === "User" && {
       owner: user._id,
     }),
   };
 
-  const charger = (await Charger.findOne(chargerQuery).lean()) as ChargerType;
-  if (charger == null) {
+  const chargers = (await Charger.find(chargerQuery).lean()) as ChargerType[];
+  if (_id != null && (chargers == null || chargers.length === 0)) {
     throw new Error("Charger does not exist!");
   }
 
-  return charger;
+  return chargers;
 };
 
 export const updateCharger = async (

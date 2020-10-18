@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/User";
 import {
   createCharger,
-  getCharger,
+  getChargers,
   updateCharger,
   deleteCharger,
   banCharger,
@@ -74,21 +74,21 @@ describe("Charger", () => {
     expect(insertedCharger.owner.toString()).toEqual(admin._id.toString());
     expect(insertedCharger.plugType).toEqual(mockCharger.plugType);
 
-    const gotCharger = await getCharger(admin, { _id: insertedCharger._id });
-    expect(gotCharger).toEqual(insertedCharger);
+    const gotCharger = await getChargers(admin, { _id: insertedCharger._id });
+    expect(gotCharger[0]).toEqual(insertedCharger);
   });
 
-  it("should fail getCharger on missing chargerId", async () => {
+  it("should fail getChargers on missing chargerId", async () => {
     try {
-      await getCharger(admin, { _id: null as any });
+      await getChargers(admin, { _id: null as any });
     } catch (error) {
       expect(error.message).toEqual("ChargerID must be provided!");
     }
   });
 
-  it("should fail getCharger on missing charger", async () => {
+  it("should fail getChargers on missing charger", async () => {
     try {
-      await getCharger(admin, { _id: "5f68a882170de39b76935ee5" });
+      await getChargers(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Charger does not exist!");
     }

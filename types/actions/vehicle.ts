@@ -12,10 +12,10 @@ export type CreateVehicleParams = {
 export type CreateVehicleResponse = VehicleType;
 
 export type GetVehicleParams = {
-  _id: VehicleType["_id"];
+  _id?: VehicleType["_id"];
 };
 
-export type GetVehicleResponse = VehicleType;
+export type GetVehicleResponse = VehicleType[];
 
 export type UpdateVehicleParams = {
   _id: VehicleType["_id"];

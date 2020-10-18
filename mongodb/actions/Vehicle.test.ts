@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import User from "../models/User";
 import {
   createVehicle,
-  getVehicle,
+  getVehicles,
   updateVehicle,
   deleteVehicle,
   banVehicle,
@@ -80,21 +80,21 @@ describe("Vehicle", () => {
     expect(insertedVehicle.owner.toString()).toEqual(admin._id.toString());
     expect(insertedVehicle.plugType).toEqual(mockVehicle.plugType);
 
-    const gotVehicle = await getVehicle(admin, { _id: insertedVehicle._id });
-    expect(gotVehicle).toEqual(insertedVehicle);
+    const gotVehicle = await getVehicles(admin, { _id: insertedVehicle._id });
+    expect(gotVehicle[0]).toEqual(insertedVehicle);
   });
 
-  it("should fail getVehicle on missing vehicleId", async () => {
+  it("should fail getVehicles on missing vehicleId", async () => {
     try {
-      await getVehicle(admin, { _id: null as any });
+      await getVehicles(admin, { _id: null as any });
     } catch (error) {
       expect(error.message).toEqual("VehicleID must be provided!");
     }
   });
 
-  it("should fail getVehicle on missing vehicle", async () => {
+  it("should fail getVehicles on missing vehicle", async () => {
     try {
-      await getVehicle(admin, { _id: "5f68a882170de39b76935ee5" });
+      await getVehicles(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("Vehicle does not exist!");
     }
