@@ -1,6 +1,5 @@
 import initDB from "../index";
 import User from "../models/User";
-import { verifyTokenSecure } from "../utils/Auth";
 import type { UserType, SafeUserType } from "../../types/user";
 import type {
   GetUserParams,
@@ -11,16 +10,12 @@ import type {
   BanUserResponse,
 } from "../../types/actions/user";
 
-export const getUser = async ({
-  token,
-  _id,
-}: GetUserParams): Promise<GetUserResponse> => {
-  if (token == null && _id == null) {
-    throw new Error("Token or UserID must be provided!");
-  }
-
-  if (token != null) {
-    return verifyTokenSecure(token);
+export const getUser = async (
+  user: SafeUserType,
+  { _id }: GetUserParams
+): Promise<GetUserResponse> => {
+  if (_id == null) {
+    return user;
   } else {
     await initDB();
 

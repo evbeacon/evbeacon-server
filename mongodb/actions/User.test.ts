@@ -31,7 +31,7 @@ describe("User", () => {
   });
 
   it("should get user from userId", async () => {
-    const gotUser = await getUser({ _id: admin._id });
+    const gotUser = await getUser(admin, { _id: admin._id });
 
     expect(gotUser).not.toBeNull();
     expect(gotUser.email).toEqual(admin.email);
@@ -85,17 +85,9 @@ describe("User", () => {
     }
   });
 
-  it("should fail getUser on missing token", async () => {
-    try {
-      await getUser({ token: null as any });
-    } catch (error) {
-      expect(error.message).toEqual("Token or UserID must be provided!");
-    }
-  });
-
   it("should fail getUser on missing userId", async () => {
     try {
-      await getUser({ _id: null as any });
+      await getUser(admin, { _id: null as any });
     } catch (error) {
       expect(error.message).toEqual("Token or UserID must be provided!");
     }
@@ -103,7 +95,7 @@ describe("User", () => {
 
   it("should fail getUser on missing user", async () => {
     try {
-      await getUser({ _id: "5f68a882170de39b76935ee5" });
+      await getUser(admin, { _id: "5f68a882170de39b76935ee5" });
     } catch (error) {
       expect(error.message).toEqual("User does not exist!");
     }

@@ -8,22 +8,19 @@ import {
   banVehicle,
 } from "./Vehicle";
 import { signUp } from "./Auth";
-import { getUser } from "./User";
 import type { SafeUserType } from "../../types/user";
 
 describe("Vehicle", () => {
   let admin: SafeUserType;
   beforeAll(async () => {
-    const { token } = await signUp({
+    const { user } = await signUp({
       email: "vehicle@hello.com",
       password: "somePass",
       name: "My Name",
     });
 
-    admin = await getUser({ token });
-
     admin = await User.findByIdAndUpdate(
-      admin._id,
+      user._id,
       {
         $set: {
           role: "Admin",

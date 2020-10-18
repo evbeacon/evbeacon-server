@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { signUp, login } from "./Auth";
-import { getUser } from "./User";
 import { generateJWT, verifyToken, verifyTokenSecure } from "../utils/Auth";
 
 describe("User", () => {
@@ -15,13 +14,11 @@ describe("User", () => {
       name: "Test User",
     };
 
-    const { token } = await signUp(mockUser);
+    const { user } = await signUp(mockUser);
 
-    const insertedUser = await getUser({ token });
-
-    expect(insertedUser).not.toBeNull();
-    expect(insertedUser.email).toEqual(mockUser.email);
-    expect(insertedUser.name).toEqual(mockUser.name);
+    expect(user).not.toBeNull();
+    expect(user.email).toEqual(mockUser.email);
+    expect(user.name).toEqual(mockUser.name);
   });
 
   it("should fail sign-up on missing params", async () => {
@@ -89,20 +86,18 @@ describe("User", () => {
       name: "Jwt User",
     };
 
-    const { token } = await signUp(mockUser);
+    const { user, token } = await signUp(mockUser);
 
-    const insertedUser = await getUser({ token });
-
-    expect(insertedUser).not.toBeNull();
-    expect(insertedUser.email).toEqual(mockUser.email);
-    expect(insertedUser.name).toEqual(mockUser.name);
+    expect(user).not.toBeNull();
+    expect(user.email).toEqual(mockUser.email);
+    expect(user.name).toEqual(mockUser.name);
 
     const jwtUser = await verifyToken(token);
 
     expect(jwtUser).not.toBeNull();
     expect(jwtUser.email).toEqual(mockUser.email);
-    expect(jwtUser.role).toEqual(insertedUser.role);
-    expect(jwtUser._id).toEqual(insertedUser._id.toString());
+    expect(jwtUser.role).toEqual(user.role);
+    expect(jwtUser._id).toEqual(user._id.toString());
   });
 
   it("should match jwt between sign-up and login", async () => {
@@ -112,12 +107,11 @@ describe("User", () => {
       name: "Jwt User",
     };
 
-    const { token: signUpToken } = await signUp(mockUser);
-    const insertedUser = await getUser({ token: signUpToken });
+    const { user, token: signUpToken } = await signUp(mockUser);
 
-    expect(insertedUser).not.toBeNull();
-    expect(insertedUser.email).toEqual(mockUser.email);
-    expect(insertedUser.name).toEqual(mockUser.name);
+    expect(user).not.toBeNull();
+    expect(user.email).toEqual(mockUser.email);
+    expect(user.name).toEqual(mockUser.name);
 
     const { token: loginToken } = await login(mockUser);
     expect(loginToken).not.toBeNull();

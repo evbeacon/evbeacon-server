@@ -2,7 +2,6 @@ import type { UserType, SafeUserType } from "../user";
 
 export type GetUserParams = {
   _id?: UserType["_id"];
-  token?: string;
 };
 
 export type GetUserResponse = SafeUserType;
