@@ -17,14 +17,14 @@
   },
   "homepage": "https://github.com/evbeacon/evbeacon-server#readme",
   "lint-staged": {
-    "*.@(ts|tsx)": [
-      "npm run format",
-      "npm run lint"
+    "*.{ts,json}": [
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run deploy-prod"
+      "pre-commit": "lint-staged"
     }
   },
   "scripts": {
