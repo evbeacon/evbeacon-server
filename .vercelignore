@@ -1,0 +1,4 @@
+coverage/
+*.test.ts
+globalConfig.json
+utils/
