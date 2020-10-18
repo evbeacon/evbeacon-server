@@ -1,5 +1,4 @@
 import type { BeaconType } from "../beacon";
-import type { ChargerType } from "../charger";
 
 export type CreateBeaconParams = {
   vehicle: BeaconType["vehicle"];
@@ -23,7 +22,7 @@ export type UpdateBeaconParams = {
 export type UpdateBeaconResponse = BeaconType;
 
 export type CancelBeaconParams = {
-  _id: ChargerType["_id"];
+  _id: BeaconType["_id"];
 };
 
 export type CancelBeaconResponse = void;
