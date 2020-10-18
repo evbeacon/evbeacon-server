@@ -11,7 +11,7 @@ const handler: NowApiHandler = (req: NowRequest, res: NowResponse) => {
   } else if (req.method === "PUT") {
     return banUser(req, res);
   } else {
-    return res.status(400).json({
+    return res.status(405).json({
       success: false,
       message: "Invalid http request!",
     });

@@ -1,5 +1,5 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
-import { login } from "../../mongodb/actions/User";
+import { login } from "../../mongodb/actions/Auth";
 
 // @route   POST login
 // @desc    Login User

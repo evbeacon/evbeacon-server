@@ -1,5 +1,5 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
-import { signUp } from "../../mongodb/actions/User";
+import { signUp } from "../../mongodb/actions/Auth";
 
 // @route   POST signup
 // @desc    Create User
