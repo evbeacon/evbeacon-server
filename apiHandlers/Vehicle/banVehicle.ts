@@ -1,6 +1,6 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { banVehicle } from "../../mongodb/actions/Vehicle";
-import { verifyTokenSecure } from "../../mongodb/actions/User";
+import { verifyTokenSecure } from "../../mongodb/utils/Auth";
 
 // @route   PUT api/vehicle
 // @desc    Ban Vehicle

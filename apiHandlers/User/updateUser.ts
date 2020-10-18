@@ -1,5 +1,6 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
-import { updateUser, verifyTokenSecure } from "../../mongodb/actions/User";
+import { updateUser } from "../../mongodb/actions/User";
+import { verifyTokenSecure } from "../../mongodb/utils/Auth";
 
 // @route   PATCH api/user
 // @desc    Update User

@@ -24,7 +24,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "tsc"
     }
   },
   "scripts": {
@@ -34,7 +35,8 @@
     "format": "prettier --write **/*.{ts,json}",
     "lint": "eslint --fix --ext ts .",
     "test": "jest --runInBand",
-    "test-coverage": "jest --runInBand --coverage"
+    "test-coverage": "jest --runInBand --coverage",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

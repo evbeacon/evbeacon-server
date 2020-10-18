@@ -1,6 +1,6 @@
 import { NowRequest, NowResponse, NowApiHandler } from "@vercel/node";
 import { deleteCharger } from "../../mongodb/actions/Charger";
-import { verifyTokenSecure } from "../../mongodb/actions/User";
+import { verifyTokenSecure } from "../../mongodb/utils/Auth";
 
 // @route   DELETE api/charger
 // @desc    Delete Charger
