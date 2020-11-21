@@ -10,6 +10,10 @@ const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
     .then((user) =>
       cancelBeacon(user, req.body ?? {}).then(() => res.status(200))
     )
-    .catch((error) => res.status(500).send(error.message));
+    .catch((error) => {
+      res.statusMessage = error.message;
+
+      return res.status(500).end();
+    });
 
 export default handler;
