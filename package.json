@@ -41,8 +41,8 @@
     "bcrypt": "^5.0.0",
     "dayjs": "^1.8.36",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.6.2",
-    "mongoose": "^5.10.5",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.15",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
@@ -51,8 +51,8 @@
     "@types/bcrypt": "^3.0.0",
     "@types/jest": "^26.0.14",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/mongodb": "^3.5.28",
-    "@types/mongoose": "^5.7.36",
+    "@types/mongodb": "^3.5.34",
+    "@types/mongoose": "^5.10.1",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "@vercel/node": "^1.8.2",
