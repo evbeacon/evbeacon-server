@@ -8,12 +8,10 @@ import { verifyTokenSecure } from "../../mongodb/utils/Auth";
 const handler: NowApiHandler = (req: NowRequest, res: NowResponse) =>
   verifyTokenSecure(req.query.token as string)
     .then((user) =>
-      cancelBeacon(user, req.body ?? {}).then(() => res.status(200))
+      cancelBeacon(user, req.body ?? {}).then(() =>
+        res.status(200).send("Success")
+      )
     )
-    .catch((error) => {
-      res.statusMessage = error.message;
-
-      return res.status(500).end();
-    });
+    .catch((error) => res.status(500).send(error.message));
 
 export default handler;
