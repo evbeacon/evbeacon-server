@@ -14,6 +14,7 @@ export type SignUpActionParams = {
   email: UserType["email"];
   password: UserType["password"];
   name: UserType["name"];
+  expoPushToken?: UserType["expoPushToken"];
 };
 
 export type SignUpActionResponse = {

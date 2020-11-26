@@ -43,6 +43,7 @@ export const signUp = async ({
   email,
   password,
   name,
+  expoPushToken,
 }: SignUpActionParams): Promise<SignUpActionResponse> => {
   if (email == null || password == null || name == null) {
     throw new Error("All parameters must be provided!");
@@ -56,6 +57,7 @@ export const signUp = async ({
     email,
     password: hashedPassword,
     name,
+    expoPushToken,
   });
 
   await user.validate();

@@ -10,6 +10,7 @@ export type UpdateUserParams = {
   _id: UserType["_id"];
   name?: UserType["name"];
   bio?: UserType["bio"];
+  expoPushToken?: UserType["expoPushToken"];
   finishedCharger?: UserType["finishedCharger"];
   finishedVehicle?: UserType["finishedVehicle"];
 };

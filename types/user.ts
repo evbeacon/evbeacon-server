@@ -5,6 +5,7 @@ export type UserType = {
   role: "Admin" | "User";
   name: string;
   bio: string;
+  expoPushToken?: string;
   finishedCharger: boolean;
   finishedVehicle: boolean;
   banned: boolean;

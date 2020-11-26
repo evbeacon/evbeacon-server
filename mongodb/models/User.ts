@@ -30,6 +30,10 @@ const UserSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    expoPushToken: {
+      type: String,
+      trim: true,
+    },
     finishedCharger: {
       type: Boolean,
       default: false,
