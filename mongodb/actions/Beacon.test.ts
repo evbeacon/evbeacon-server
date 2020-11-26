@@ -235,11 +235,9 @@ describe("Beacon", () => {
     expect(insertedBeacon.owner.toString()).toEqual(admin._id.toString());
     expect(insertedBeacon.vehicleRange).toEqual(mockBeacon.vehicleRange);
 
-    try {
-      await getNearbyChargers(insertedBeacon);
-    } catch (error) {
-      expect(error.message).toEqual("No nearby chargers!");
-    }
+    const nearby = await getNearbyChargers(insertedBeacon);
+
+    expect(nearby.length).toEqual(0);
   });
 
   it("should fail get nearby chargers when only disabled", async () => {
@@ -271,11 +269,9 @@ describe("Beacon", () => {
       )
     );
 
-    try {
-      await getNearbyChargers(insertedBeacon);
-    } catch (error) {
-      expect(error.message).toEqual("No nearby chargers!");
-    }
+    const nearby = await getNearbyChargers(insertedBeacon);
+
+    expect(nearby.length).toEqual(0);
   });
 
   it("should update beacon", async () => {

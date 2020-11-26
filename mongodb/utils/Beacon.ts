@@ -32,7 +32,7 @@ export const getNearbyChargers = async (
 
   const currentHour = dayjs().utc().hour();
 
-  const nearbyChargers = chargers.filter(
+  return chargers.filter(
     ({ offHoursStartUTC: start, offHoursEndUTC: end }: ChargerType) => {
       if (start != null && end != null) {
         if (start <= end) {
@@ -45,10 +45,4 @@ export const getNearbyChargers = async (
       return true;
     }
   );
-
-  if (nearbyChargers.length === 0) {
-    throw new Error("No nearby chargers!");
-  }
-
-  return nearbyChargers;
 };
