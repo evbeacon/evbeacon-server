@@ -12,33 +12,33 @@ export const getNearbyChargers = async (
     beacon.vehicle
   ).lean()) as VehicleType;
 
-  const currentDate = new Date();
+  const currentDate = dayjs().utc();
+  const currentJsDate = currentDate.toDate();
+  const currentTime = currentDate.hour() * 60 + currentDate.minute();
 
   const chargers = (await Charger.find({
-    banned: false,
-    plugType: vehicle.plugType,
-    $or: [
-      { disabledUntil: { $lt: currentDate } },
-      { disabledUntil: { $exists: false } },
-      { disabledUntil: null },
-    ],
     location: {
       $near: {
         $maxDistance: beacon.vehicleRange,
         $geometry: beacon.location,
       },
     },
+    banned: false,
+    plugType: vehicle.plugType,
+    $or: [
+      { disabledUntil: { $exists: false } },
+      { disabledUntil: null },
+      { disabledUntil: { $lt: currentJsDate } },
+    ],
   }).lean()) as ChargerType[];
-
-  const currentHour = dayjs().utc().hour();
 
   return chargers.filter(
     ({ offHoursStartUTC: start, offHoursEndUTC: end }: ChargerType) => {
       if (start != null && end != null) {
         if (start <= end) {
-          return currentHour < start || currentHour > end;
+          return currentTime < start || currentTime >= end;
         } else {
-          return currentHour > end && currentHour < start;
+          return currentTime >= end && currentTime < start;
         }
       }
 

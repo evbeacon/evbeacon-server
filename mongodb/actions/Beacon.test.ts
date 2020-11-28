@@ -47,6 +47,8 @@ const generateChargerWithinRange = (
     prevDuringDay = !prevDuringDay;
   }
 
+  const currentDate = dayjs().utc();
+
   return createCharger(user, {
     location: {
       coordinates: [foundLongitude, foundLatitude],
@@ -60,11 +62,11 @@ const generateChargerWithinRange = (
     plugType: "Tesla",
     ...(offHours === true && {
       offHoursStartUTC: prevDuringDay
-        ? dayjs().add(2, "h").hour()
-        : dayjs().subtract(2, "h").hour(),
+        ? currentDate.add(3, "h").hour() * 60
+        : currentDate.subtract(2, "h").hour() * 60,
       offHoursEndUTC: prevDuringDay
-        ? dayjs().subtract(4, "h").hour()
-        : dayjs().add(4, "h").hour(),
+        ? currentDate.add(1, "h").hour() * 60
+        : currentDate.add(4, "h").hour() * 60,
     }),
     ...(disabled === true && {
       disabledUntil: dayjs().add(7, "d").toDate(),
